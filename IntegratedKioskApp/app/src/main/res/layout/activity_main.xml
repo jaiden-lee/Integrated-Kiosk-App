@@ -43,45 +43,18 @@
             android:layout_width="match_parent"
             android:layout_height="100dp" />
 
-        <TableLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="539dp"
-            android:layout_weight="1">
+            android:layout_height="546dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-            <TableRow
-                android:id="@+id/123"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+        </LinearLayout>
 
-                <Button
-                    android:id="@+id/button3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Button" />
-
-                <Button
-                    android:id="@+id/button4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Button" />
-
-                <Button
-                    android:id="@+id/button5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Button" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/456"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <TableRow
-                android:id="@+id/789"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </TableLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
 
     </LinearLayout>
 
