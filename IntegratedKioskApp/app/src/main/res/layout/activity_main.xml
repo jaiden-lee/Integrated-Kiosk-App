@@ -11,12 +11,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginEnd="640dp"
-        android:foreground="@android:drawable/presence_video_online"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="200dp"></View>
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"></SurfaceView>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="200dp"></View>
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/numpad_layout"
@@ -32,7 +45,7 @@
         <TextView
             android:id="@+id/display_student_id"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:background="#03A9F4"
             android:textAlignment="center"
@@ -41,20 +54,35 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="100dp" />
+            android:layout_height="50dp"></View>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="546dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/one"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:text="1"
+                    android:textSize="50sp"></Button>
+
+                <Button
+                    android:id="@+id/two"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:text="2"
+                    android:textSize="50sp"></Button>
+
+
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"></LinearLayout>
 
     </LinearLayout>
 
