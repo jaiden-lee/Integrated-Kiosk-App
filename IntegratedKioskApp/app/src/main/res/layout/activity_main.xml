@@ -80,8 +80,17 @@
                     android:text="2"
                     android:textSize="50sp"></Button>
 
+                <Button
+                    android:id="@+id/three"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:text="3"
+                    android:textSize="50sp"></Button>
+
 
             </LinearLayout>
+
+
         </LinearLayout>
 
     </LinearLayout>
