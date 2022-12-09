@@ -1,6 +1,8 @@
 package com.example.integratedkioskapp.Classes;
 
 import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.ImageApi;
+import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.StudentApi;
+import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.StudentID;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import retrofit2.http.Multipart;
 
 public class ServerCommunication {
     public static final String ai_base_url = "http://192.168.86.59:8000/";
+    public static final String id_base_url = "http://10.56.9.186:8000/";
+    // kiosk/login
     // this URL is temporary, change this to the actual server link later
 
     //INPUT: Accepts an array of the image file paths
@@ -60,5 +64,23 @@ public class ServerCommunication {
 
     }
 
+    public static void uploadStudentID (String id) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(id_base_url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        StudentApi studentApi = retrofit.create(StudentApi.class);
+        Call<StudentID> call = studentApi.sendStudentID(id, "1");
+        call.enqueue(new Callback<StudentID>() {
+            @Override
+            public void onResponse(Call<StudentID> call, Response<StudentID> response) {
 
+            }
+
+            @Override
+            public void onFailure(Call<StudentID> call, Throwable t) {
+
+            }
+        });
+    }
 }
