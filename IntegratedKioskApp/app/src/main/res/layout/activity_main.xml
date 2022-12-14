@@ -19,14 +19,14 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="200dp"></View>
-        <SurfaceView
-            android:id="@+id/surfaceView"
+            android:layout_height="100dp"></View>
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
             android:layout_width="match_parent"
-            android:layout_height="400dp"></SurfaceView>
+            android:layout_height="600dp"></androidx.camera.view.PreviewView>
         <View
             android:layout_width="match_parent"
-            android:layout_height="200dp"></View>
+            android:layout_height="100dp"></View>
 
     </LinearLayout>
 
