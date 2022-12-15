@@ -34,9 +34,6 @@ android {
 dependencies {
 
 
-    implementation 'com.google.mlkit:face-detection:16.1.5'
-    implementation 'com.google.mlkit:camera:16.0.0-beta3'
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
 
     // RETROFIT
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
