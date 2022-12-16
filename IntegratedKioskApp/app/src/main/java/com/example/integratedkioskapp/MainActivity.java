@@ -1,6 +1,6 @@
 package com.example.integratedkioskapp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.*;
 
 import android.os.Bundle;
 import android.view.View;

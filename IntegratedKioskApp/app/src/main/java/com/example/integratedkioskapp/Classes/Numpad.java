@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.*;
 
 import com.example.integratedkioskapp.MainActivity;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
