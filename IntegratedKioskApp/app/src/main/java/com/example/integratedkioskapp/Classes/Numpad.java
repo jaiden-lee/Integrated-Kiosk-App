@@ -17,27 +17,48 @@ public class Numpad {
     public static String currentId = "";
     public static int butNum;
     public static void createClickListeners (ActivityMainBinding binding) {
+        Button buttons[] = {
+                binding.zero,
+                binding.one,
+                binding.two,
+                binding.three,
+                binding.four,
+                binding.five,
+                binding.six,
+                binding.seven,
+                binding.eight,
+                binding.nine
+        };
 
-        Button button1 = binding.one;
-        button1.setOnClickListener (new View.OnClickListener() {
+        // NUM BUTTONS
+        for (int buttonNum = 0; buttonNum<buttons.length; buttonNum++) {
+            butNum = buttonNum;
+            buttons[buttonNum].setOnClickListener(new View.OnClickListener() {
+                int num = butNum;
                 @Override
-                public void onClick(View view) {
-                    currentId+="1";
+                public void onClick (View view) {
+                    currentId+=""+num;
                     Log.d("NUMPAD", "onClick: "+currentId);
                 }
             });
-
-
-//        for (int buttonNum = 0; buttonNum<buttons.length; buttonNum++) {
-//            butNum = buttonNum+1;
-//            buttons[buttonNum].setOnClickListener (new View.OnClickListener() {
-//                int num = butNum;
-//                @Override
-//                public void onClick(View view) {
-//                    currentId+=num;
-//                    idLabel.setText(currentId);
-//                }
-//            });
-//        }
+        }
+        // DELETE BUTTON
+        binding.delete.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick (View view) {
+               if (currentId.length()>=1) {
+                   currentId = currentId.substring(0, currentId.length()-1);
+               }
+           }
+        });
+        binding.enter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View view) {
+                if (currentId.length()>=1) {
+                    ServerCommunication.uploadStudentID(currentId);
+                    currentId = "";
+                }
+            }
+        });
     }
 }
