@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
+        androidx.constraintlayout.widget.ConstraintLayout view = binding.getRoot();
         setContentView(view);
 
 
