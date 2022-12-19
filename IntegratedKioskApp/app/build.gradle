@@ -39,7 +39,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    //need this for constraint layout in activity main to resolve
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.7.0'
 
     //CAMERA AND BARCODE
     def camerax_version = "1.1.0-beta01"
@@ -51,8 +54,4 @@ dependencies {
 
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-extensions:${camerax_version}"
-
-
-
-
 }

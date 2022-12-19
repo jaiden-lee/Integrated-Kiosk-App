@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
 
 
-
 //        Button[] numpadButtons = {
 //                findViewById(R.id.zero),
 //                findViewById(R.id.one),
