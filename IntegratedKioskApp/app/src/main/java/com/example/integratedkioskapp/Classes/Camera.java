@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageCapture;
@@ -23,6 +24,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -54,17 +60,20 @@ public class Camera extends MainActivity{
     private androidx.camera.core.Camera cam;
     private PreviewView previewView;
     private ImageCapture imageCapture;
+    private ArrayList<File> imageFiles;
+    private File imageFile;
 
     private Executor executor = Executors.newSingleThreadExecutor();
 
     public Camera(){
+        imageFiles = new ArrayList<File>();
+
         if (cameraPermissionGranted()){
             startCamera();
         }
         else{
             Toast.makeText(getBaseContext(), "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private boolean cameraPermissionGranted(){
@@ -101,21 +110,36 @@ public class Camera extends MainActivity{
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, imageCapture, preview);
     }
 
-    // talk to veer about how to return an image so we can send imto the server
-    /*private void takePicture(){
-        //ImageCapture.OutputFileOptions outputFileOptions =
-               // new ImageCapture.OutputFileOptions.Builder(new File(...)).build();
-       // imageCapture.takePicture(outputFileOptions, executor,
+    // talk to veer about how to return an image so we can send into the server
+    private File takePicture() throws FileNotFoundException {
+
+        String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", ".");
+        String filePath = Environment.getExternalStorageState() + "/Dowload/" + fileName + ".jgp";
+        imageFile = new File (filePath);
+//
+//        FileOutputStream outputStream = new FileOutputStream(filePath);
+
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(imageFile).build();
+        imageCapture.takePicture(outputFileOptions, executor,
                 new ImageCapture.OnImageSavedCallback() {
             @Override
-                    public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
-                //insert code to put image somewhere
+            public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
+                //we did it!
             }
             public void onError(ImageCaptureException error){
-                //throw a toast or something idk
+                //oh no!
             }
-        });*/
+        });
+        imageFiles.add(imageFile);
+        return imageFile;
     }
+
+    public ArrayList<File> getImageFiles(){
+        return imageFiles;
+    }
+
+
 
 }
 
