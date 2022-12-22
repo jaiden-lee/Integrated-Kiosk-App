@@ -140,6 +140,5 @@ public class Camera extends MainActivity{
     }
 
 
-
 }
 

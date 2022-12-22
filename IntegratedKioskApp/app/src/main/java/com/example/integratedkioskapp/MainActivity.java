@@ -41,5 +41,7 @@ public class MainActivity extends AppCompatActivity {
 //        TextView idLabel = findViewById(R.id.display_student_id);
 
         Numpad.createClickListeners(binding);
+        Camera camTest = new Camera();
+
     }
 }
