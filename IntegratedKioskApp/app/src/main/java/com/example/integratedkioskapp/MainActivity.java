@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
 
         Numpad.createClickListeners(binding);
-        Camera camTest = new Camera();
+        Camera camTest = new Camera(binding);
 
     }
 }

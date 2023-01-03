@@ -34,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -55,35 +56,39 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class Camera extends MainActivity{
+public class Camera{
 //for the camera to start, you must implement 2/3 of the camerax uses cases: Preview and ImageCapture
     private androidx.camera.core.Camera cam;
     private PreviewView previewView;
+    private Context context;
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
     private File imageFile;
 
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor;
 
-    public Camera(){
+    public Camera(ActivityMainBinding binding){
+        previewView = binding.previewView;
+        context = previewView.getContext();
         imageFiles = new ArrayList<File>();
+        executor = Executors.newSingleThreadExecutor();
 
         if (cameraPermissionGranted()){
-            startCamera();
+//            startCamera();
         }
         else{
-            Toast.makeText(getBaseContext(), "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private boolean cameraPermissionGranted(){
-        return ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void startCamera(){
         // Request a CameraProvider
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                ProcessCameraProvider.getInstance(this);
+                ProcessCameraProvider.getInstance(context);
         // verify that the CameraProvider initialized
         cameraProviderFuture.addListener(() -> {
             try{
@@ -92,17 +97,18 @@ public class Camera extends MainActivity{
             } catch (ExecutionException | InterruptedException e) {
                 //This should never be reached because no errors need to be handled for this Future
             }
-        }, ContextCompat.getMainExecutor(this));
+        }, ContextCompat.getMainExecutor(context));
     }
+
 
     private void bindPreview(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
-
+//could be an issue with rotation int value
         imageCapture = new ImageCapture.Builder()
-                .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
+                .setTargetRotation(Surface.ROTATION_0)
                         .build();
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
@@ -111,6 +117,7 @@ public class Camera extends MainActivity{
     }
 
     // talk to veer about how to return an image so we can send into the server
+
     private File takePicture() throws FileNotFoundException {
 
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", ".");
