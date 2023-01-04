@@ -74,7 +74,8 @@ public class Camera{
         executor = Executors.newSingleThreadExecutor();
 
         if (cameraPermissionGranted()){
-//            startCamera();
+            Log.d("CAMERA", "Permission Granted");
+            startCamera();
         }
         else{
             Toast.makeText(context, "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
