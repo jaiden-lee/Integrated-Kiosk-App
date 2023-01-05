@@ -103,7 +103,7 @@ public class Camera{
 
 
     private void bindPreview(ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().setTargetRotation(Surface.ROTATION_0).build();
+        Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
