@@ -64,6 +64,7 @@ public class Camera{
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
     private File imageFile;
+    public boolean isBinded = false;
 
     private Executor executor;
 
@@ -76,7 +77,11 @@ public class Camera{
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
+            imageCapture = new ImageCapture.Builder()
+                    .setTargetRotation(Surface.ROTATION_0)
+                    .build();
             startCamera();
+
         }
         else{
             Toast.makeText(context, "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
@@ -88,6 +93,8 @@ public class Camera{
     }
 
     private void startCamera(){
+        Log.d("CAMERAXTHING", "EVEN MORE BRUH");
+
         // Request a CameraProvider
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(context);
@@ -96,7 +103,8 @@ public class Camera{
             try{
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
-            } catch (ExecutionException | InterruptedException e) {
+                takePicture();
+            } catch (ExecutionException | InterruptedException | FileNotFoundException e) {
                 //This should never be reached because no errors need to be handled for this Future
             }
         }, ContextCompat.getMainExecutor(context));
@@ -104,26 +112,27 @@ public class Camera{
 
 
     private void bindPreview(ProcessCameraProvider cameraProvider) {
+        Log.d("CAMERAXTHING", "TOP");
+
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 //could be an issue with rotation int value
-        imageCapture = new ImageCapture.Builder()
-                .setTargetRotation(Surface.ROTATION_0)
-                        .build();
+
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
 
+        Log.d("CAMERAXTHING", "BRUH");
     }
 
     // talk to veer about how to return an image so we can send into the server
 
-    private File takePicture() throws FileNotFoundException {
-
-        String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", ".");
-        String filePath = Environment.getExternalStorageState() + "/Dowload/" + fileName + ".jgp";
+    public File takePicture() throws FileNotFoundException {
+        Log.d("CAMERAXTHING", "PICTURE TAKEN");
+        String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
+        String filePath = Environment.getExternalStorageState() + "/Download/" + fileName + ".jpeg";
         imageFile = new File (filePath);
 //
 //        FileOutputStream outputStream = new FileOutputStream(filePath);
@@ -135,9 +144,12 @@ public class Camera{
             @Override
             public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
                 //we did it!
+                Log.d("CAMERAXTHING", "IMAGE SAVED: "+filePath);
+
             }
             public void onError(ImageCaptureException error){
                 //oh no!
+                Log.d("CAMERAXTHING", "ERROR: "+error.toString());
             }
         });
         imageFiles.add(imageFile);
