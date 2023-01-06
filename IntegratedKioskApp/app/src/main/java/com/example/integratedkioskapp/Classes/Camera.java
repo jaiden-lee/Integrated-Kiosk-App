@@ -4,6 +4,10 @@ package com.example.integratedkioskapp.Classes;
 import com.example.integratedkioskapp.MainActivity;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -29,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -68,14 +73,17 @@ public class Camera{
     public boolean isBinded = false;
     private ImageAnalysis imageAnalysis;
 
-    private Executor executor;
+    private Executor captureExecutor;
+    private Executor analysisExecutor;
 
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
 
         context = previewView.getContext();
         imageFiles = new ArrayList<File>();
-        executor = Executors.newSingleThreadExecutor();
+        captureExecutor = Executors.newSingleThreadExecutor();
+        analysisExecutor = Executors.newSingleThreadExecutor();
+
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
@@ -134,11 +142,26 @@ public class Camera{
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
+        //find out the type of barcode on our id cards to optimize
+        BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
+                Barcode.FORMAT_CODE_128,
+                Barcode.FORMAT_CODE_39,
+                Barcode.FORMAT_CODE_93,
+                Barcode.FORMAT_EAN_8,
+                Barcode.FORMAT_EAN_13,
+                Barcode.FORMAT_QR_CODE,
+                Barcode.FORMAT_UPC_A,
+                Barcode.FORMAT_UPC_E,
+                Barcode.FORMAT_PDF417).build();
+        BarcodeScanner scanner = BarcodeScanning.getClient(barcodeOptions);
+//        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+//                analysisExecutor, result -> {
+//                    // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
+//                });
+
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
-
-    // talk to veer about how to return an image so we can send into the server
 
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
@@ -150,7 +173,7 @@ public class Camera{
 
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(imageFile).build();
-        imageCapture.takePicture(outputFileOptions, executor,
+        imageCapture.takePicture(outputFileOptions, captureExecutor,
                 new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
