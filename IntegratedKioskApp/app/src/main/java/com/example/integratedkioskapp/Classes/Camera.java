@@ -113,8 +113,7 @@ public class Camera{
             }
         }, ContextCompat.getMainExecutor(context));
     }
-
-
+    
     private void bindPreview(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -124,7 +123,6 @@ public class Camera{
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
-
     }
 
     // talk to veer about how to return an image so we can send into the server
