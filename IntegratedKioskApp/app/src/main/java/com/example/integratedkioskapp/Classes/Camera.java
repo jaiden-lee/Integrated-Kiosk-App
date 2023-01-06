@@ -34,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
@@ -64,6 +65,7 @@ public class Camera{
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
     private File imageFile;
+    private ImageAnalysis imageAnalysis;
 
     private Executor executor;
 
@@ -76,6 +78,16 @@ public class Camera{
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
+            //capture use case
+            imageCapture = new ImageCapture.Builder()
+                    .setTargetRotation(Surface.ROTATION_0)
+                    .build();
+            //analysis use case
+            imageAnalysis = new ImageAnalysis.Builder()
+                    .setTargetResolution(new Size(1280, 720))
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build();
+
             startCamera();
         }
         else{
@@ -108,12 +120,9 @@ public class Camera{
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
-//could be an issue with rotation int value
-        imageCapture = new ImageCapture.Builder()
-                .setTargetRotation(Surface.ROTATION_0)
-                        .build();
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
+
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
 
     }
