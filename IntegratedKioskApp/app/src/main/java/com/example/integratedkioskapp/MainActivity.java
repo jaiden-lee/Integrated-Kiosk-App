@@ -28,6 +28,5 @@ public class MainActivity extends AppCompatActivity {
 
         Numpad.createClickListeners(binding);
         Camera camTest = new Camera(binding);
-
     }
 }

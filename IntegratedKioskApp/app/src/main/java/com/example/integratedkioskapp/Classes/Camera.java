@@ -1,6 +1,8 @@
 package com.example.integratedkioskapp.Classes;
 
 
+import static androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED;
+
 import com.example.integratedkioskapp.MainActivity;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -8,6 +10,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.interfaces.Detector;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -17,9 +20,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.utils.ContextUtil;
+import androidx.camera.mlkit.vision.MlKitAnalyzer;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
@@ -48,6 +54,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.CameraSelector;
 import android.util.Log;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.video.FallbackStrategy;
@@ -62,7 +69,7 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class Camera{
+public class Camera {
 //for the camera to start, you must implement 2/3 of the camerax uses cases: Preview and ImageCapture
     private androidx.camera.core.Camera cam;
     private PreviewView previewView;
@@ -80,16 +87,16 @@ public class Camera{
         previewView = binding.previewView;
 
         context = previewView.getContext();
+
         imageFiles = new ArrayList<File>();
+
         captureExecutor = Executors.newSingleThreadExecutor();
         analysisExecutor = Executors.newSingleThreadExecutor();
-
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
             
             startCamera();
-
         }
         else{
             Toast.makeText(context, "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
@@ -122,13 +129,13 @@ public class Camera{
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
 //could be an issue with rotation int value
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
+        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, imageAnalysis, preview);
 
         Log.d("CAMERAXTHING", "BRUH");
 
@@ -145,19 +152,16 @@ public class Camera{
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
                 Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_CODE_39,
-                Barcode.FORMAT_CODE_93,
-                Barcode.FORMAT_EAN_8,
-                Barcode.FORMAT_EAN_13,
-                Barcode.FORMAT_QR_CODE,
-                Barcode.FORMAT_UPC_A,
-                Barcode.FORMAT_UPC_E,
-                Barcode.FORMAT_PDF417).build();
+                Barcode.FORMAT_CODE_39)
+                .build();
         BarcodeScanner scanner = BarcodeScanning.getClient(barcodeOptions);
-//        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
-//                analysisExecutor, result -> {
-//                    // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
-//                });
+        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer (List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+                analysisExecutor, result -> {
+            // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
+            // Need to test this on actual android device
+            String res = result.toString();
+            Log.d("CAMERAXTHING", "BARCODE: " + res);
+    }));
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
@@ -166,6 +170,8 @@ public class Camera{
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
+        //idea: what if it's Downloads not Download
+        //- Maddy
         String filePath = Environment.getExternalStorageState() + "/Download/" + fileName + ".jpeg";
         imageFile = new File (filePath);
 //
@@ -178,8 +184,7 @@ public class Camera{
             @Override
             public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
                 //we did it!
-                Log.d("CAMERAXTHING", "IMAGE SAVED: "+filePath);
-
+                Log.d("CAMERAXTHING", "IMAGE SAVED: "+ filePath);
             }
             public void onError(ImageCaptureException error){
                 //oh no!
