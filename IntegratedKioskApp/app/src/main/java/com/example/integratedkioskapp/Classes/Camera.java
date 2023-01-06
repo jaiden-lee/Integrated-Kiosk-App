@@ -102,10 +102,11 @@ public class Camera{
         cameraProviderFuture.addListener(() -> {
             try{
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindPreview(cameraProvider);
+                bindUseCases(cameraProvider);
                 takePicture();
             } catch (ExecutionException | InterruptedException | FileNotFoundException e) {
-                bindUseCases(cameraProvider);
+//                bindUseCases(cameraProvider);
+                // should never be reached
             }
         }, ContextCompat.getMainExecutor(context));
     }
