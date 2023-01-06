@@ -78,16 +78,6 @@ public class Camera{
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
-            //capture use case
-            imageCapture = new ImageCapture.Builder()
-                    .setTargetRotation(Surface.ROTATION_0)
-                    .build();
-            //analysis use case
-            imageAnalysis = new ImageAnalysis.Builder()
-                    .setTargetResolution(new Size(1280, 720))
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build();
-
             startCamera();
         }
         else{
@@ -107,22 +97,31 @@ public class Camera{
         cameraProviderFuture.addListener(() -> {
             try{
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindPreview(cameraProvider);
+                bindUseCases(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
                 //This should never be reached because no errors need to be handled for this Future
             }
         }, ContextCompat.getMainExecutor(context));
     }
     
-    private void bindPreview(ProcessCameraProvider cameraProvider) {
+    private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
+        //capture use case
+        imageCapture = new ImageCapture.Builder()
+                .setTargetRotation(Surface.ROTATION_0)
+                .build();
+        //analysis use case
+        imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(1280, 720))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
+        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
 
     // talk to veer about how to return an image so we can send into the server
