@@ -34,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
@@ -65,6 +66,7 @@ public class Camera{
     private ArrayList<File> imageFiles;
     private File imageFile;
     public boolean isBinded = false;
+    private ImageAnalysis imageAnalysis;
 
     private Executor executor;
 
@@ -77,9 +79,7 @@ public class Camera{
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
-            imageCapture = new ImageCapture.Builder()
-                    .setTargetRotation(Surface.ROTATION_0)
-                    .build();
+            
             startCamera();
 
         }
@@ -105,15 +105,12 @@ public class Camera{
                 bindPreview(cameraProvider);
                 takePicture();
             } catch (ExecutionException | InterruptedException | FileNotFoundException e) {
-                //This should never be reached because no errors need to be handled for this Future
+                bindUseCases(cameraProvider);
             }
         }, ContextCompat.getMainExecutor(context));
     }
-
-
-    private void bindPreview(ProcessCameraProvider cameraProvider) {
-        Log.d("CAMERAXTHING", "TOP");
-
+    
+    private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
@@ -125,6 +122,19 @@ public class Camera{
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
 
         Log.d("CAMERAXTHING", "BRUH");
+
+        //capture use case
+        imageCapture = new ImageCapture.Builder()
+                .setTargetRotation(Surface.ROTATION_0)
+                .build();
+        //analysis use case
+        imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(1280, 720))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
+
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
 
     // talk to veer about how to return an image so we can send into the server
