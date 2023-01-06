@@ -69,6 +69,7 @@ public class Camera{
 
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
+
         context = previewView.getContext();
         imageFiles = new ArrayList<File>();
         executor = Executors.newSingleThreadExecutor();
@@ -103,18 +104,18 @@ public class Camera{
 
 
     private void bindPreview(ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().build();
+        Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 //could be an issue with rotation int value
         imageCapture = new ImageCapture.Builder()
                 .setTargetRotation(Surface.ROTATION_0)
                         .build();
-
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, preview);
+
     }
 
     // talk to veer about how to return an image so we can send into the server
