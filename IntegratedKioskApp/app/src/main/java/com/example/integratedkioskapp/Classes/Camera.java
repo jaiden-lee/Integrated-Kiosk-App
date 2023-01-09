@@ -129,19 +129,18 @@ public class Camera {
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 //could be an issue with rotation int value
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, imageCapture, imageAnalysis, preview);
 
         Log.d("CAMERAXTHING", "BRUH");
 
         //capture use case
         imageCapture = new ImageCapture.Builder()
-                .setTargetRotation(Surface.ROTATION_0)
+                .setTargetRotation(Surface.ROTATION_90)
                 .build();
         //analysis use case
         imageAnalysis = new ImageAnalysis.Builder()
@@ -172,7 +171,8 @@ public class Camera {
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
         //idea: what if it's Downloads not Download
         //- Maddy
-        String filePath = Environment.getExternalStorageState() + "/Download/" + fileName + ".jpeg";
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
+        Log.d("CAMERAXTHING", filePath);
         imageFile = new File (filePath);
 //
 //        FileOutputStream outputStream = new FileOutputStream(filePath);
