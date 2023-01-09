@@ -158,14 +158,16 @@ public class Camera {
                 analysisExecutor, result -> {
             // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
             // Need to test this on actual android device
-            String res = result.toString();
+            String res = result.getValue(scanner).toString();
             Log.d("CAMERAXTHING", "BARCODE: " + res);
     }));
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
+    public void scanBarcode () {
 
+    }
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
