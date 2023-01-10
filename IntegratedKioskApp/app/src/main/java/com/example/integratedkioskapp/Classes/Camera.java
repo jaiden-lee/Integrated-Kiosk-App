@@ -5,17 +5,23 @@ import static androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFER
 
 import com.example.integratedkioskapp.MainActivity;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.interfaces.Detector;
 
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +29,7 @@ import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
@@ -154,18 +161,56 @@ public class Camera {
                 Barcode.FORMAT_CODE_39)
                 .build();
         BarcodeScanner scanner = BarcodeScanning.getClient(barcodeOptions);
-        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer (List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+        MlKitAnalyzer analyzer = new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
                 analysisExecutor, result -> {
             // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
             // Need to test this on actual android device
-            String res = result.getValue(scanner).toString();
-            Log.d("CAMERAXTHING", "BARCODE: " + res);
-    }));
+//            @ExperimentalGetImage
+//                    processImageProxy(scanner, imageProxy);
+
+    });
+
+        imageAnalysis.setAnalyzer(analysisExecutor, analyzer);
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
-    public void scanBarcode () {
+
+    @ExperimentalGetImage
+    public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy) {
+
+        Image image = imageProxy.getImage();
+
+        if (image == null) return;
+
+        InputImage inputImage = InputImage.fromMediaImage(image, imageProxy.getImageInfo().getRotationDegrees());
+        scanner.process(inputImage).addOnSuccessListener(
+            new OnSuccessListener<List<Barcode>>() {
+                 @Override
+                 public void onSuccess(List<Barcode> barcodes) {
+                     if (barcodes.size()>0) {
+                         Log.d("CAMERAXTHING", barcodes.get(0).getRawValue());
+                     }
+                 }
+             }
+        ).addOnFailureListener(
+        new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("CAMERAXTHING", "nlg u kinda suck");
+            }
+        }
+        ).addOnCompleteListener(
+                new OnCompleteListener<List<Barcode>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Barcode>> task) {
+                        imageProxy.close();
+                    }
+                }
+        );
+
+
+
 
     }
     public File takePicture() throws FileNotFoundException {
