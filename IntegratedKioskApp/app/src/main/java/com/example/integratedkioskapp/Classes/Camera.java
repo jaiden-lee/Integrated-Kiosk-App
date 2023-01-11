@@ -18,6 +18,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.interfaces.Detector;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -133,6 +134,7 @@ public class Camera {
         }, ContextCompat.getMainExecutor(context));
     }
     
+    @SuppressLint("UnsafeOptInUsageError")
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -161,25 +163,26 @@ public class Camera {
                 Barcode.FORMAT_CODE_39)
                 .build();
         BarcodeScanner scanner = BarcodeScanning.getClient(barcodeOptions);
-        MlKitAnalyzer analyzer = new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
-                analysisExecutor, result -> {
-            // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
-            // Need to test this on actual android device
-//            @ExperimentalGetImage
-//                    processImageProxy(scanner, imageProxy);
 
-    });
+//        @SuppressLint("UnsafeOptInUsageError") MlKitAnalyzer analyzer = new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+//                analysisExecutor, new ImageAnalysis.Analyzer imageProxy = processImageProxy(scanner, imageProxy);
+//            // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
+//            // Need to test this on actual android device
+////            @ExperimentalGetImage
+//             });
 
-        imageAnalysis.setAnalyzer(analysisExecutor, analyzer);
+        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+                analysisExecutor, (imageProxy) -> {
+           processImageProxy(scanner, imageProxy); }));
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
 
     @ExperimentalGetImage
-    public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy) {
+    public void processImageProxy (BarcodeScanner scanner, Object imageProxy) {
 
-        Image image = imageProxy.getImage();
+        Image image = (ImageProxy) imageProxy.getImage();
 
         if (image == null) return;
 
