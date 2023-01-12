@@ -116,8 +116,6 @@ public class Camera {
     }
 
     private void startCamera(){
-        Log.d("CAMERAXTHING", "EVEN MORE BRUH");
-
         // Request a CameraProvider
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(context);
@@ -132,20 +130,21 @@ public class Camera {
                 // should never be reached
             }
         }, ContextCompat.getMainExecutor(context));
+        Log.d("CAMERAXTHING", "Camera Started");
     }
     
     @SuppressLint("UnsafeOptInUsageError")
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().setTargetRotation(context.getDisplay().getRotation()).build();
+        Preview preview = new Preview.Builder()
+                .setTargetRotation(context.getDisplay().getRotation())
+                //.setTargetRotation(Surface.ROTATION_180)
+                .build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 //could be an issue with rotation int value
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
-
-        Log.d("CAMERAXTHING", "BRUH");
 
         //capture use case
         imageCapture = new ImageCapture.Builder()
@@ -154,6 +153,7 @@ public class Camera {
         //analysis use case
         imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280, 720))
+                .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
@@ -170,19 +170,27 @@ public class Camera {
 //            // Need to test this on actual android device
 ////            @ExperimentalGetImage
 //             });
+        Log.d("CAMERAXTHING", "FIRST");
+//        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
+//                analysisExecutor, (result) -> {
+//            Log.d("CAMERAXTHING", "TEST");
+//           processImageProxy(scanner, (ImageProxy)result.getValue(scanner)); }));
 
-        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
-                analysisExecutor, (imageProxy) -> {
-           processImageProxy(scanner, imageProxy); }));
-
+        imageAnalysis.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
+           @Override
+           public void analyze(@NonNull ImageProxy imageProxy) {
+               processImageProxy(scanner, imageProxy);
+           }
+        });
+        Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
     }
 
     @ExperimentalGetImage
-    public void processImageProxy (BarcodeScanner scanner, Object imageProxy) {
-
-        Image image = (ImageProxy) imageProxy.getImage();
+    public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy) {
+        if (imageProxy==null) return;
+        Image image = imageProxy.getImage();
 
         if (image == null) return;
 
@@ -192,7 +200,7 @@ public class Camera {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
                      if (barcodes.size()>0) {
-                         Log.d("CAMERAXTHING", barcodes.get(0).getRawValue());
+                         Log.d("CAMERAXTHING", "ID: "+ barcodes.get(0).getRawValue());
                      }
                  }
              }
