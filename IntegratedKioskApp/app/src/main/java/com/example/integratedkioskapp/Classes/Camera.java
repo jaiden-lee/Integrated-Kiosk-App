@@ -56,6 +56,7 @@ import java.util.concurrent.Executors;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.core.Preview;
@@ -87,12 +88,14 @@ public class Camera {
     private File imageFile;
     public boolean isBinded = false;
     private ImageAnalysis imageAnalysis;
+    private TextView displayText;
 
     private Executor captureExecutor;
     private Executor analysisExecutor;
 
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
+        displayText = binding.displayStudentId;
 
         context = previewView.getContext();
 
@@ -200,6 +203,7 @@ public class Camera {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
                      if (barcodes.size()>0) {
+                         displayText.setText(barcodes.get(0).getRawValue());
                          Log.d("CAMERAXTHING", "ID: "+ barcodes.get(0).getRawValue());
                      }
                  }
