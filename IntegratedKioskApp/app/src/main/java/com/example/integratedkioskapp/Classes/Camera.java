@@ -155,7 +155,7 @@ public class Camera {
                 .build();
         //analysis use case
         imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
+                .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
@@ -223,10 +223,6 @@ public class Camera {
                     }
                 }
         );
-
-
-
-
     }
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
