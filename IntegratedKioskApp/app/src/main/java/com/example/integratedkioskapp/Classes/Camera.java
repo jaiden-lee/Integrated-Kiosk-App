@@ -15,6 +15,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.interfaces.Detector;
 
 import android.Manifest;
@@ -22,10 +24,12 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.FaceDetector;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
@@ -78,6 +82,7 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+
 public class Camera {
 //for the camera to start, you must implement 2/3 of the camerax uses cases: Preview and ImageCapture
     private androidx.camera.core.Camera cam;
@@ -92,6 +97,13 @@ public class Camera {
 
     private Executor captureExecutor;
     private Executor analysisExecutor;
+    private Executor faceExecutor;
+
+    private Calendar curdate = Calendar.getInstance();
+    private Calendar calendar = Calendar.getInstance();
+
+    private Calendar flushcurdate = Calendar.getInstance();
+    private Calendar flushcalendar = Calendar.getInstance();
 
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
@@ -155,39 +167,58 @@ public class Camera {
                 .build();
         //analysis use case
         imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
+                .setTargetResolution(new Size(1680, 1260))
                 .setTargetRotation(Surface.ROTATION_180)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
 
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
                 Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_CODE_39)
+                Barcode.FORMAT_CODE_39
+                )
                 .build();
-        BarcodeScanner scanner = BarcodeScanning.getClient(barcodeOptions);
+        BarcodeScanner barcodeScanner = BarcodeScanning.getClient(barcodeOptions);
 
-//        @SuppressLint("UnsafeOptInUsageError") MlKitAnalyzer analyzer = new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
-//                analysisExecutor, new ImageAnalysis.Analyzer imageProxy = processImageProxy(scanner, imageProxy);
-//            // The value of result.getResult(barcodeScanner) can be used directly for drawing UI overlay.
-//            // Need to test this on actual android device
-////            @ExperimentalGetImage
-//             });
-        Log.d("CAMERAXTHING", "FIRST");
-//        imageAnalysis.setAnalyzer(analysisExecutor, new MlKitAnalyzer(List.of(scanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
-//                analysisExecutor, (result) -> {
-//            Log.d("CAMERAXTHING", "TEST");
-//           processImageProxy(scanner, (ImageProxy)result.getValue(scanner)); }));
 
         imageAnalysis.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
            @Override
            public void analyze(@NonNull ImageProxy imageProxy) {
-               processImageProxy(scanner, imageProxy);
+               processImageProxy(barcodeScanner, imageProxy);
            }
         });
+
+        FaceDetectorOptions faceDetectorOptions = new FaceDetectorOptions.Builder()
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setMinFaceSize(0.15f)
+                .enableTracking()
+                .build();
+        FaceDetector faceDetector = (FaceDetector) FaceDetection.getClient(faceDetectorOptions);
+
+        imageAnalysis.setAnalyzer(faceExecutor, new ImageAnalysis.Analyzer() {
+           @Override
+           public void analyze(@NonNull ImageProxy imageProxy) {
+                processFaceDetection(faceDetector, imageProxy);
+           }
+        });
+
+
+
         Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
+    }
+
+    @ExperimentalGetImage
+    public void processFaceDetection (FaceDetector faceDetector, ImageProxy imageProxy) {
+        if (imageProxy==null) return;
+        Image image = imageProxy.getImage();
+        if (image==null) return;
+
+        InputImage inputImage = InputImage.fromMediaImage(image, imageProxy.getImageInfo().getRotationDegrees());
+
     }
 
     @ExperimentalGetImage
@@ -202,10 +233,39 @@ public class Camera {
             new OnSuccessListener<List<Barcode>>() {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
-                     if (barcodes.size()>0) {
-                         displayText.setText(barcodes.get(0).getRawValue());
-                         Log.d("CAMERAXTHING", "ID: "+ barcodes.get(0).getRawValue());
+                     flushcalendar = Calendar.getInstance();
+                     Calendar flushcompare = (Calendar)flushcurdate.clone();
+                     flushcompare.add(Calendar.MILLISECOND, 10000);
+                     if(flushcalendar.compareTo(flushcompare) > 0){
+                         try {
+                             Flush();
+                             Log.d("CAMERAXTHING", "Flushed");
+                         } catch (FileNotFoundException e) {
+                             e.printStackTrace();
+                         }
+                         flushcurdate = Calendar.getInstance();
                      }
+                     if (barcodes.size()>0) {
+                         calendar = Calendar.getInstance();
+                         Calendar compare = (Calendar)curdate.clone();
+                         compare.add(Calendar.MILLISECOND, 1000);
+                         if (calendar.compareTo(compare) > 0) {
+                             Log.d("CAMERAXTHING", "CALENDAR CUFF");
+                             curdate = Calendar.getInstance();
+                            if(barcodes.get(0).getRawValue().length()==5) {
+                                displayText.setText(barcodes.get(0).getRawValue());
+                            }
+                             Log.d("CAMERAXTHING", "SIZE: " + barcodes.size() + " ID: " + barcodes.get(0).getDriverLicense());
+
+
+                             try {
+                                 takePicture();
+                             } catch (FileNotFoundException e) {
+                                 e.printStackTrace();
+                             }
+                         }
+                     }
+
                  }
              }
         ).addOnFailureListener(
@@ -227,6 +287,14 @@ public class Camera {
 
 
 
+    }
+    public void Flush() throws FileNotFoundException {
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/");
+        for(File file: dir.listFiles()) {
+            if (!file.isDirectory()) {
+                file.delete();
+            }
+        }
     }
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");

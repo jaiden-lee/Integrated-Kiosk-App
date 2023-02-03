@@ -24,6 +24,11 @@ public class ServerCommunication {
     // kiosk/login
     // this URL is temporary, change this to the actual server link later
 
+    public static void uploadImageFilesForBarCode () {
+
+    }
+
+
     //INPUT: Accepts an array of the image file paths
     //OUTPUT: None
     public static void uploadImageFilesForFaceRec (ArrayList<String> imageFilePaths) {
