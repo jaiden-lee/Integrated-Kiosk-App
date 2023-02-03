@@ -167,7 +167,7 @@ public class Camera {
                 .build();
         //analysis use case
         imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1680, 1260))
+                .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
@@ -283,10 +283,6 @@ public class Camera {
                     }
                 }
         );
-
-
-
-
     }
     public void Flush() throws FileNotFoundException {
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/");
