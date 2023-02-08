@@ -24,7 +24,40 @@ public class ServerCommunication {
     // kiosk/login
     // this URL is temporary, change this to the actual server link later
 
-    public static void uploadImageFilesForBarCode () {
+    public static void uploadImageFilesForBarCode (ArrayList<String> barcodeFilePaths) {
+        MultipartBody.Part[] barcodes = new MultipartBody.Part[barcodeFilePaths.size()];
+        for (int index = 0; index<barcodeFilePaths.size(); index++) {
+            File imageFile = new File(barcodeFilePaths.get(index));
+            if (imageFile.exists()) {
+                MultipartBody.Part imagePart = MultipartBody.Part.createFormData(
+                        "kiosk1-" + String.valueOf((System.currentTimeMillis() / 1000)) +
+                                "-" + index, imageFile.getName(), RequestBody.create(MediaType.parse("image/*"),
+                                imageFile));
+                barcodes[index] = imagePart;
+            }
+        }
+
+        // CREATING RETROFIT CLASSES
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ai_base_url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ImageApi imageApi =retrofit.create(ImageApi.class);
+        Call<ResponseBody> call = imageApi.postImagesForBarcode(barcodes);
+
+        // SENDING AN ASYNC REQUEST
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
 
     }
 

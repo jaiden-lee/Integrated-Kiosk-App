@@ -11,4 +11,8 @@ public interface ImageApi {
     @Multipart
     @POST("post_images/") // this is the part of the URL after the base URL
     public Call<ResponseBody> postImagesForFaceRec (@Part MultipartBody.Part[] images);
+
+    @Multipart
+    @POST("post_barcodes/")
+    public Call<ResponseBody> postImagesForBarcode (@Part MultipartBody.Part[] images);
 }
