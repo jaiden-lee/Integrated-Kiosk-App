@@ -92,7 +92,8 @@ public class Camera {
     private ArrayList<File> imageFiles;
     private File imageFile;
     public boolean isBinded = false;
-    private ImageAnalysis imageAnalysis;
+    private ImageAnalysis imageAnalysisBarcode;
+    private ImageAnalysis imageAnalysisFace;
     private TextView displayText;
 
     private Executor captureExecutor;
@@ -118,7 +119,6 @@ public class Camera {
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
-            
             startCamera();
         }
         else{
@@ -147,7 +147,6 @@ public class Camera {
         }, ContextCompat.getMainExecutor(context));
         Log.d("CAMERAXTHING", "Camera Started");
     }
-    
     @SuppressLint("UnsafeOptInUsageError")
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder()
@@ -165,8 +164,9 @@ public class Camera {
         imageCapture = new ImageCapture.Builder()
                 .setTargetRotation(Surface.ROTATION_90)
                 .build();
+
         //analysis use case
-        imageAnalysis = new ImageAnalysis.Builder()
+        imageAnalysisBarcode = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
@@ -181,7 +181,7 @@ public class Camera {
         BarcodeScanner barcodeScanner = BarcodeScanning.getClient(barcodeOptions);
 
 
-        imageAnalysis.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
+        imageAnalysisBarcode.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
            @Override
            public void analyze(@NonNull ImageProxy imageProxy) {
                processImageProxy(barcodeScanner, imageProxy);
@@ -195,20 +195,25 @@ public class Camera {
                 .setMinFaceSize(0.15f)
                 .enableTracking()
                 .build();
-        FaceDetector faceDetector = (FaceDetector) FaceDetection.getClient(faceDetectorOptions);
 
-        imageAnalysis.setAnalyzer(faceExecutor, new ImageAnalysis.Analyzer() {
+        FaceDetector faceDetector = (FaceDetector) FaceDetection.getClient(faceDetectorOptions);
+        imageAnalysisFace = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(1280 , 720))
+                .setTargetRotation(Surface.ROTATION_180)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+                .build();
+        imageAnalysisFace.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
            @Override
            public void analyze(@NonNull ImageProxy imageProxy) {
                 processFaceDetection(faceDetector, imageProxy);
            }
         });
 
-
-
         Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
+
+        //CREATING THE CAMERA
+        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysisBarcode, imageAnalysisFace);
     }
 
     @ExperimentalGetImage
@@ -218,7 +223,6 @@ public class Camera {
         if (image==null) return;
 
         InputImage inputImage = InputImage.fromMediaImage(image, imageProxy.getImageInfo().getRotationDegrees());
-
     }
 
     @ExperimentalGetImage
@@ -245,6 +249,7 @@ public class Camera {
                          }
                          flushcurdate = Calendar.getInstance();
                      }
+
                      if (barcodes.size()>0) {
                          calendar = Calendar.getInstance();
                          Calendar compare = (Calendar)curdate.clone();
@@ -253,6 +258,7 @@ public class Camera {
                              Log.d("CAMERAXTHING", "CALENDAR CUFF");
                              curdate = Calendar.getInstance();
                             if(barcodes.get(0).getRawValue().length()==5) {
+                                ///where the barcode text is set
                                 displayText.setText(barcodes.get(0).getRawValue());
                             }
                              Log.d("CAMERAXTHING", "SIZE: " + barcodes.size() + " ID: " + barcodes.get(0).getDriverLicense());
@@ -284,6 +290,7 @@ public class Camera {
                 }
         );
     }
+
     public void Flush() throws FileNotFoundException {
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/");
         for(File file: dir.listFiles()) {
@@ -292,6 +299,7 @@ public class Camera {
             }
         }
     }
+
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
