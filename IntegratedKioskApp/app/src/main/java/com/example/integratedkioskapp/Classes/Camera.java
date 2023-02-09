@@ -165,13 +165,12 @@ public class Camera {
                 .setTargetRotation(Surface.ROTATION_90)
                 .build();
 
-        //analysis use case
+        //barcode use case
         imageAnalysisBarcode = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
-
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
                 Barcode.FORMAT_CODE_128,
@@ -179,8 +178,6 @@ public class Camera {
                 )
                 .build();
         BarcodeScanner barcodeScanner = BarcodeScanning.getClient(barcodeOptions);
-
-
         imageAnalysisBarcode.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
            @Override
            public void analyze(@NonNull ImageProxy imageProxy) {
@@ -188,6 +185,7 @@ public class Camera {
            }
         });
 
+        //face analysis use case
         FaceDetectorOptions faceDetectorOptions = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
@@ -195,7 +193,6 @@ public class Camera {
                 .setMinFaceSize(0.15f)
                 .enableTracking()
                 .build();
-
         FaceDetector faceDetector = (FaceDetector) FaceDetection.getClient(faceDetectorOptions);
         imageAnalysisFace = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280 , 720))
@@ -212,7 +209,7 @@ public class Camera {
         Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        //CREATING THE CAMERA
+        //CREATING THE CAMERA AND BINDING USE CASES TO ITS LIFE CYCLE
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysisBarcode, imageAnalysisFace);
     }
 
