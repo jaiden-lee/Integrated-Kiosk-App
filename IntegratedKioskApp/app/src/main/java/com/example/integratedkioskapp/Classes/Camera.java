@@ -234,6 +234,13 @@ public class Camera {
             new OnSuccessListener<List<Barcode>>() {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
+
+//                     try{
+//                         Thread.sleep(1000);
+//                     }
+//                     catch(InterruptedException e){
+//                     }
+
                      flushcalendar = Calendar.getInstance();
                      Calendar flushcompare = (Calendar)flushcurdate.clone();
                      flushcompare.add(Calendar.MILLISECOND, 10000);
