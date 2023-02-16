@@ -58,4 +58,7 @@ dependencies {
     implementation 'com.google.mlkit:face-detection:16.1.5'
     implementation 'com.google.android.gms:play-services-mlkit-face-detection:17.1.0'
 
+//    implementation 'com.google.firebase:firebase-core:16.0.9'
+//    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+//    implementation 'com.google.firebase:firebase-ml-vision-face-model:17.0.2'
 }

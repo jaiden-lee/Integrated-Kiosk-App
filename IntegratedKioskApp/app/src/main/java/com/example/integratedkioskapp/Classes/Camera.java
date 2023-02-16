@@ -10,12 +10,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.interfaces.Detector;
 
@@ -24,7 +27,8 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.media.FaceDetector;
+import android.graphics.Bitmap;
+//import android.media.FaceDetector;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -105,6 +109,11 @@ public class Camera {
     private Calendar flushcurdate = Calendar.getInstance();
     private Calendar flushcalendar = Calendar.getInstance();
 
+    private int currTimeAnalysis = 0;
+    private int lastTimeCleared = 0;
+
+
+
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
         displayText = binding.displayStudentId;
@@ -171,55 +180,102 @@ public class Camera {
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
+//        imageAnalysisFace = new ImageAnalysis.Builder()
+//                .setTargetResolution(new Size(1280 , 720))
+//                .setTargetRotation(Surface.ROTATION_180)
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+//                .build();
 
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
                 Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_CODE_39
-                )
+                Barcode.FORMAT_CODE_39)
                 .build();
         BarcodeScanner barcodeScanner = BarcodeScanning.getClient(barcodeOptions);
 
-
-        imageAnalysis.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
-           @Override
-           public void analyze(@NonNull ImageProxy imageProxy) {
-               processImageProxy(barcodeScanner, imageProxy);
-           }
-        });
 
         FaceDetectorOptions faceDetectorOptions = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                 .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                .setMinFaceSize(0.15f)
+                .setMinFaceSize(.3f)
                 .enableTracking()
                 .build();
-        FaceDetector faceDetector = (FaceDetector) FaceDetection.getClient(faceDetectorOptions);
+        FaceDetector faceDetector = FaceDetection.getClient(faceDetectorOptions);
 
-        imageAnalysis.setAnalyzer(faceExecutor, new ImageAnalysis.Analyzer() {
-           @Override
-           public void analyze(@NonNull ImageProxy imageProxy) {
-                processFaceDetection(faceDetector, imageProxy);
-           }
+
+
+        imageAnalysis.setAnalyzer(analysisExecutor, new ImageAnalysis.Analyzer() {
+            @Override
+            public void analyze(@NonNull ImageProxy imageProxy) {
+//                try{
+//                    Thread.sleep(1000);
+//                }
+//                catch(InterruptedException e){}
+
+                int currTimeNow = (int)System.currentTimeMillis();
+                if (currTimeNow - currTimeAnalysis >= 1000) {
+                    currTimeAnalysis = currTimeNow;
+                    Log.d("CAMERAXTHING", "currTimeNow - currTimeAnalysis: "+(currTimeNow - currTimeAnalysis));
+                    processImageProxy(barcodeScanner, imageProxy);
+                    processFaceDetection(faceDetector, imageProxy);
+                    return;
+                }
+                imageProxy.close();
+            }
         });
 
 
 
         Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis);
+        cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis); // idk how to add 2nd imageanalysis but hopefully it works
     }
 
     @ExperimentalGetImage
     public void processFaceDetection (FaceDetector faceDetector, ImageProxy imageProxy) {
         if (imageProxy==null) return;
         Image image = imageProxy.getImage();
-        if (image==null) return;
+
+        if (image == null) return;
 
         InputImage inputImage = InputImage.fromMediaImage(image, imageProxy.getImageInfo().getRotationDegrees());
+        faceDetector.process(inputImage).addOnSuccessListener(
+                new OnSuccessListener<List<Face>>() {
+                    @Override
+                    public void onSuccess(List<Face> faces) {
+                        Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
+                        if (faces.size()>0) {
+                            try {
+                                takePicture();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+        ).addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("CAMERAXTHING", "no face detected atm");
+                    }
+                }
+        ).addOnCompleteListener(
+                new OnCompleteListener<List<Face>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Face>> task) {
+                        imageProxy.close();
+                    }
+                }
+        );
 
-    }
+
+    } // from my research so far, it seems that you use the FindFaces method
+    // i'm not sure exactly how the syncrhonous/async works for htis; if the imageAnalys.setnalyzer runs a separate thread constantly, then we should be fine
+    // also a separate image analysis object needs to be created or else the face detection replaced barcode
+    // actually, the imageanalysis part actually does send data in a stream - so that creates the thread that keeps running; but idk how often it runs
+
 
     @ExperimentalGetImage
     public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy) {
@@ -233,38 +289,6 @@ public class Camera {
             new OnSuccessListener<List<Barcode>>() {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
-                     flushcalendar = Calendar.getInstance();
-                     Calendar flushcompare = (Calendar)flushcurdate.clone();
-                     flushcompare.add(Calendar.MILLISECOND, 10000);
-                     if(flushcalendar.compareTo(flushcompare) > 0){
-                         try {
-                             Flush();
-                             Log.d("CAMERAXTHING", "Flushed");
-                         } catch (FileNotFoundException e) {
-                             e.printStackTrace();
-                         }
-                         flushcurdate = Calendar.getInstance();
-                     }
-                     if (barcodes.size()>0) {
-                         calendar = Calendar.getInstance();
-                         Calendar compare = (Calendar)curdate.clone();
-                         compare.add(Calendar.MILLISECOND, 1000);
-                         if (calendar.compareTo(compare) > 0) {
-                             Log.d("CAMERAXTHING", "CALENDAR CUFF");
-                             curdate = Calendar.getInstance();
-                            if(barcodes.get(0).getRawValue().length()==5) {
-                                displayText.setText(barcodes.get(0).getRawValue());
-                            }
-                             Log.d("CAMERAXTHING", "SIZE: " + barcodes.size() + " ID: " + barcodes.get(0).getDriverLicense());
-
-
-                             try {
-                                 takePicture();
-                             } catch (FileNotFoundException e) {
-                                 e.printStackTrace();
-                             }
-                         }
-                     }
 
                  }
              }
