@@ -1,5 +1,7 @@
 package com.example.integratedkioskapp.Classes;
 
+import android.util.Log;
+
 import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.ImageApi;
 import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.StudentApi;
 import com.example.integratedkioskapp.Classes.RetrofitHelperFiles.StudentID;
@@ -24,6 +26,52 @@ public class ServerCommunication {
     // kiosk/login
     // this URL is temporary, change this to the actual server link later
 
+    // Sends Labeled Images: both barcode and face
+    private static MultipartBody.Part[] convertToFormData (ArrayList<LabeledImage> labeledImages) {
+        MultipartBody.Part[] images = new MultipartBody.Part[labeledImages.size()];
+        for (int imageIndex = 0; imageIndex<images.length; imageIndex++) {
+            LabeledImage labeledImage = labeledImages.get(imageIndex);
+            File imageFile = new File(labeledImage.imageFilePath);
+            String fileType = labeledImage.fileType;
+
+            if (imageFile.exists() == false) continue; // skips over the rest of the code and loops back to beginning
+            // FORMAT: objectName, fileType, imageFile
+            String name = "kiosk1-" + String.valueOf((System.currentTimeMillis() / 1000)) +
+                    "-" + imageIndex;
+            RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"),
+                    imageFile);
+            MultipartBody.Part imagePart = MultipartBody.Part.createFormData(name, fileType, imageBody);
+            images[imageIndex] = imagePart;
+        }
+        return images;
+    }
+
+    public static void uploadImageFilesToServer (ArrayList<LabeledImage> labeledImages) {
+        MultipartBody.Part[] images = convertToFormData(labeledImages);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ai_base_url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        ImageApi imageApi =retrofit.create(ImageApi.class);
+        Call<ResponseBody> call = imageApi.postImagesForBarcode(images);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String studentId = response.message();
+                Log.d("CAMERAXTHING", studentId);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+    }
+
+/*
     public static void uploadImageFilesForBarCode (ArrayList<String> barcodeFilePaths) {
         MultipartBody.Part[] barcodes = new MultipartBody.Part[barcodeFilePaths.size()];
         for (int index = 0; index<barcodeFilePaths.size(); index++) {
@@ -101,6 +149,7 @@ public class ServerCommunication {
         });
 
     }
+*/
 
     public static void uploadStudentID (String id) {
         Retrofit retrofit = new Retrofit.Builder()

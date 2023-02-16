@@ -56,6 +56,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -94,6 +95,9 @@ public class Camera {
     private Context context;
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
+
+    private ArrayList<LabeledImage> labeledImageFiles;
+
     private File imageFile;
     public boolean isBinded = false;
     private ImageAnalysis imageAnalysis;
@@ -110,8 +114,12 @@ public class Camera {
     private Calendar flushcurdate = Calendar.getInstance();
     private Calendar flushcalendar = Calendar.getInstance();
 
+
+    // TIME DELAYS
     private int currTimeAnalysis = 0;
-    private int lastTimeCleared = 0;
+    private int lastRequestTime = 0;
+    private int scanCooldown = 250; // this is in milliseconds (ms)
+    private int sendRequestCooldown = 1000; // how often we send a request to server
 
 
 
@@ -148,8 +156,7 @@ public class Camera {
             try{
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindUseCases(cameraProvider);
-                takePicture();
-            } catch (ExecutionException | InterruptedException | FileNotFoundException e) {
+            } catch (ExecutionException | InterruptedException e) {
 //                bindUseCases(cameraProvider);
                 // should never be reached
             }
@@ -210,18 +217,32 @@ public class Camera {
 //                catch(InterruptedException e){}
 
                 int currTimeNow = (int)System.currentTimeMillis();
-                if (currTimeNow - currTimeAnalysis >= 1000) {
+                if (currTimeNow - currTimeAnalysis >= scanCooldown) {
                     currTimeAnalysis = currTimeNow;
-                    Log.d("CAMERAXTHING", "currTimeNow - currTimeAnalysis: "+(currTimeNow - currTimeAnalysis));
                     processImageProxy(barcodeScanner, imageProxy);
                     processFaceDetection(faceDetector, imageProxy);
                     return;
                 }
                 imageProxy.close();
+
+
+                // SENDING REQUESTS
+                currTimeNow = (int)System.currentTimeMillis();
+                if (currTimeNow - lastRequestTime >= sendRequestCooldown) {
+                    lastRequestTime = currTimeNow;
+                    ServerCommunication.uploadImageFilesToServer(labeledImageFiles);
+
+                    labeledImageFiles.clear();
+
+                    try {
+                        deleteImagesFromStorage();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
-        Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cam = cameraProvider.bindToLifecycle((LifecycleOwner) context, cameraSelector, preview, imageCapture, imageAnalysis); // idk how to add 2nd imageanalysis but hopefully it works
     }
@@ -241,7 +262,7 @@ public class Camera {
                         Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
                         if (faces.size()>0) {
                             try {
-                                takePicture();
+                                takePicture("Face");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -283,7 +304,13 @@ public class Camera {
             new OnSuccessListener<List<Barcode>>() {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
-
+                     if (barcodes.size()>0) {
+                         try {
+                             takePicture("Barcode");
+                         } catch (Exception e) {
+                             e.printStackTrace();
+                         }
+                     }
                  }
              }
         ).addOnFailureListener(
@@ -303,7 +330,7 @@ public class Camera {
         );
     }
 
-    public void Flush() throws FileNotFoundException {
+    public void deleteImagesFromStorage() throws FileNotFoundException {
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/");
         for(File file: dir.listFiles()) {
             if (!file.isDirectory()) {
@@ -312,7 +339,7 @@ public class Camera {
         }
     }
 
-    public File takePicture() throws FileNotFoundException {
+    public File takePicture(String fileType) throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
         //idea: what if it's Downloads not Download
@@ -320,8 +347,7 @@ public class Camera {
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
         Log.d("CAMERAXTHING", filePath);
         imageFile = new File (filePath);
-//
-//        FileOutputStream outputStream = new FileOutputStream(filePath);
+
 
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(imageFile).build();
@@ -338,13 +364,16 @@ public class Camera {
             }
         });
         imageFiles.add(imageFile);
+
+        LabeledImage labeledImage = new LabeledImage(filePath, fileType);
+
+        labeledImageFiles.add(labeledImage);
         return imageFile;
     }
 
     public ArrayList<File> getImageFiles(){
         return imageFiles;
     }
-
 
 }
 
