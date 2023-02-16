@@ -96,7 +96,7 @@ public class Camera {
     private ArrayList<File> imageFiles;
     private File imageFile;
     public boolean isBinded = false;
-    private ImageAnalysis imageAnalysisBarcode;
+    private ImageAnalysis imageAnalysis;
     private ImageAnalysis imageAnalysisFace;
     private TextView displayText;
 
@@ -175,7 +175,7 @@ public class Camera {
                 .build();
 
         //barcode use case
-        imageAnalysisBarcode = new ImageAnalysis.Builder()
+        imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
