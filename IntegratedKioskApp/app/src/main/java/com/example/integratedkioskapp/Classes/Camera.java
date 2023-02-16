@@ -96,7 +96,8 @@ public class Camera {
     private ArrayList<File> imageFiles;
     private File imageFile;
     public boolean isBinded = false;
-    private ImageAnalysis imageAnalysis;
+    private ImageAnalysis imageAnalysisBarcode;
+    private ImageAnalysis imageAnalysisFace;
     private TextView displayText;
 
     private Executor captureExecutor;
@@ -127,7 +128,6 @@ public class Camera {
 
         if (cameraPermissionGranted()){
             Log.d("CAMERA", "Permission Granted");
-            
             startCamera();
         }
         else{
@@ -156,7 +156,6 @@ public class Camera {
         }, ContextCompat.getMainExecutor(context));
         Log.d("CAMERAXTHING", "Camera Started");
     }
-    
     @SuppressLint("UnsafeOptInUsageError")
     private void bindUseCases(ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder()
@@ -174,17 +173,14 @@ public class Camera {
         imageCapture = new ImageCapture.Builder()
                 .setTargetRotation(Surface.ROTATION_90)
                 .build();
-        //analysis use case
-        imageAnalysis = new ImageAnalysis.Builder()
+
+        //barcode use case
+        imageAnalysisBarcode = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280 , 720))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
-//        imageAnalysisFace = new ImageAnalysis.Builder()
-//                .setTargetResolution(new Size(1280 , 720))
-//                .setTargetRotation(Surface.ROTATION_180)
-//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
-//                .build();
+
 
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
@@ -224,8 +220,6 @@ public class Camera {
                 imageProxy.close();
             }
         });
-
-
 
         Log.d("CAMERAXTHING", "AFTER");
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
@@ -308,6 +302,7 @@ public class Camera {
                 }
         );
     }
+
     public void Flush() throws FileNotFoundException {
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/");
         for(File file: dir.listFiles()) {
@@ -316,6 +311,7 @@ public class Camera {
             }
         }
     }
+
     public File takePicture() throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
