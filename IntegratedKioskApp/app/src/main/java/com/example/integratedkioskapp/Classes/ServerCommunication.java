@@ -21,7 +21,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Multipart;
 
 public class ServerCommunication {
-    public static final String ai_base_url = "http://192.168.86.59:8000/";
+    public static final String ai_base_url = "http://192.168.86.77:8000/";
     public static final String id_base_url = "http://10.56.9.186:8000/";
     // kiosk/login
     // this URL is temporary, change this to the actual server link later
@@ -55,8 +55,8 @@ public class ServerCommunication {
                 .build();
 
         ImageApi imageApi =retrofit.create(ImageApi.class);
-        Call<ResponseBody> call = imageApi.postImagesForBarcode(images);
-
+        Call<ResponseBody> call = imageApi.postImagesForFaceRec(images);
+        Log.d("CAMERAXTHING", "I HAVE NO CLUE");
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -66,7 +66,7 @@ public class ServerCommunication {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                Log.d("CAMERAXTHING", "BRUH: "+t.toString());
             }
         });
     }

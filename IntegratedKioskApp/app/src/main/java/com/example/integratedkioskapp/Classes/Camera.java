@@ -96,7 +96,7 @@ public class Camera {
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
 
-    private ArrayList<LabeledImage> labeledImageFiles;
+    private ArrayList<LabeledImage> labeledImageFiles = new ArrayList<>();
 
     private File imageFile;
     public boolean isBinded = false;
@@ -229,16 +229,18 @@ public class Camera {
                 // SENDING REQUESTS
                 currTimeNow = (int)System.currentTimeMillis();
                 if (currTimeNow - lastRequestTime >= sendRequestCooldown) {
+                    Log.d("CAMERAXTHING", "SEND");
                     lastRequestTime = currTimeNow;
-                    ServerCommunication.uploadImageFilesToServer(labeledImageFiles);
-
+                    if (labeledImageFiles.size()>0) {
+                        ServerCommunication.uploadImageFilesToServer(labeledImageFiles);
+                    }
                     labeledImageFiles.clear();
 
-                    try {
-                        deleteImagesFromStorage();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        deleteImagesFromStorage();
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         });
