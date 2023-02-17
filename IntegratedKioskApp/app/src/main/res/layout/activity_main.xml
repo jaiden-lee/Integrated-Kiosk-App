@@ -20,12 +20,30 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="100dp"></View>
-        <androidx.camera.view.PreviewView
-            android:id="@+id/previewView"
-            android:layout_width="match_parent"
-            android:layout_height="600dp">
 
-        </androidx.camera.view.PreviewView>
+        <TextView
+            android:id="@+id/promptView"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:text="please center your face in the camera"
+            android:textSize="40sp"
+            android:textAlignment="center">
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="600dp"
+            android:orientation="horizontal"
+            android:gravity = "center">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="550dp"
+                android:layout_height="550dp">
+            </androidx.camera.view.PreviewView>
+
+        </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="100dp"></View>
@@ -39,57 +57,60 @@
         android:layout_height="match_parent"
         android:layout_marginStart="640dp"
         android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/display_student_id"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:background="#03A9F4"
-            android:textAlignment="center"
-            android:textSize="96sp"
-            tools:text="123456" />
-
         <View
             android:layout_width="match_parent"
-            android:layout_height="50dp"></View>
+            android:layout_height="100dp"></View>
+
+        <TextView
+            android:id="@+id/display_student_id"
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:background="#83FFFFFF"
+            android:backgroundTint="#002196F3"
+            android:text="123456"
+            android:textAlignment="center"
+            android:textSize="80sp" />
 
         <LinearLayout
             android:id="@+id/keypad"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="600dp"
+            android:gravity="center"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/firstrow"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:orientation="horizontal"
                 android:layout_marginBottom=".01dp"
-                >
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/one"
                     android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:background="#FEFEFF"
                     android:text="1"
                     android:textSize="50sp"></Button>
 
                 <Button
                     android:id="@+id/two"
                     android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
                     android:text="2"
                     android:textSize="50sp"></Button>
 
                 <Button
                     android:id="@+id/three"
                     android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
                     android:text="3"
                     android:textSize="50sp"></Button>
 
@@ -99,6 +120,7 @@
                 android:id="@+id/secondrow"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <Button
@@ -128,6 +150,7 @@
                 android:id="@+id/thirdrow"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <Button
@@ -156,7 +179,8 @@
             <LinearLayout
                 android:id="@+id/fourthrow"
                 android:layout_width="match_parent"
-                android:layout_height="100dp">
+                android:layout_height="100dp"
+                android:gravity="center">
 
                 <Button
                     android:id="@+id/delete"
@@ -181,12 +205,6 @@
 
 
             </LinearLayout>
-
-
-
-
-
-
 
         </LinearLayout>
 
