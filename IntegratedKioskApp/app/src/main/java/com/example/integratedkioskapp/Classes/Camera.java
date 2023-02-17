@@ -99,7 +99,6 @@ public class Camera {
     private ArrayList<LabeledImage> labeledImageFiles = new ArrayList<>();
 
     private File imageFile;
-    public boolean isBinded = false;
     private ImageAnalysis imageAnalysis;
     private ImageAnalysis imageAnalysisFace;
     private TextView displayText;
