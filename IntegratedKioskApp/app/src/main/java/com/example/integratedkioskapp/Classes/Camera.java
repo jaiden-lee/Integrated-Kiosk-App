@@ -115,10 +115,10 @@ public class Camera {
 
 
     // TIME DELAYS
-    private int currTimeAnalysis = 0;
-    private int lastRequestTime = 0;
-    private int scanCooldown = 250; // this is in milliseconds (ms)
-    private int sendRequestCooldown = 1000; // how often we send a request to server
+    private long currTimeAnalysis = System.currentTimeMillis();
+    private long lastRequestTime = System.currentTimeMillis();
+    private long scanCooldown = 250; // this is in milliseconds (ms)
+    private long sendRequestCooldown = 1000; // how often we send a request to server
 
 
 
@@ -190,8 +190,7 @@ public class Camera {
 
         //find out the type of barcode on our id cards to optimize
         BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder().setBarcodeFormats(
-                Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_CODE_39)
+                Barcode.FORMAT_ALL_FORMATS)
                 .build();
         BarcodeScanner barcodeScanner = BarcodeScanning.getClient(barcodeOptions);
 
@@ -214,9 +213,9 @@ public class Camera {
 //                    Thread.sleep(1000);
 //                }
 //                catch(InterruptedException e){}
-
-                int currTimeNow = (int)System.currentTimeMillis();
+                long currTimeNow = System.currentTimeMillis();
                 if (currTimeNow - currTimeAnalysis >= scanCooldown) {
+                    Log.d("CAMERAXTHING", "BRUH");
                     currTimeAnalysis = currTimeNow;
                     processImageProxy(barcodeScanner, imageProxy);
                     processFaceDetection(faceDetector, imageProxy);
@@ -226,7 +225,7 @@ public class Camera {
 
 
                 // SENDING REQUESTS
-                currTimeNow = (int)System.currentTimeMillis();
+                currTimeNow = System.currentTimeMillis();
                 if (currTimeNow - lastRequestTime >= sendRequestCooldown) {
                     Log.d("CAMERAXTHING", "SEND");
                     lastRequestTime = currTimeNow;
@@ -305,7 +304,10 @@ public class Camera {
             new OnSuccessListener<List<Barcode>>() {
                  @Override
                  public void onSuccess(List<Barcode> barcodes) {
+                     Log.d("CAMERAXTHING", "BARCODE 1: "+barcodes.size());
                      if (barcodes.size()>0) {
+                         Log.d("CAMERAXTHING", "BARCODE 2");
+
                          try {
                              takePicture("Barcode");
                          } catch (Exception e) {
