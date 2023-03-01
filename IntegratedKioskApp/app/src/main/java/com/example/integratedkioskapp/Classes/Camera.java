@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 //import android.media.FaceDetector;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,6 +54,7 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -182,7 +185,7 @@ public class Camera {
 
         //barcode use case
         imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280 , 720))
+                .setTargetResolution(new Size(2560 , 1440))
                 .setTargetRotation(Surface.ROTATION_180)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .build();
@@ -262,7 +265,9 @@ public class Camera {
                         Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
                         if (faces.size()>0) {
                             try {
-                                takePicture("Face");
+                                cropImageProxy(imageProxy, faces.get(0).getBoundingBox(), "Face");
+
+//                                takePicture("Face", faces.get(0).getBoundingBox());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -309,7 +314,8 @@ public class Camera {
                          Log.d("CAMERAXTHING", "BARCODE 2");
 
                          try {
-                             takePicture("Barcode");
+                             cropImageProxy(imageProxy, barcodes.get(0).getBoundingBox(), "Barcode");
+//                             takePicture("Barcode", barcodes.get(0).getBoundingBox());
                          } catch (Exception e) {
                              e.printStackTrace();
                          }
@@ -342,7 +348,7 @@ public class Camera {
         }
     }
 
-    public File takePicture(String fileType) throws FileNotFoundException {
+    public File takePicture(String fileType, Rect boundingBox) throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
         //idea: what if it's Downloads not Download
@@ -350,6 +356,12 @@ public class Camera {
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
         Log.d("CAMERAXTHING", filePath);
         imageFile = new File (filePath);
+
+        int left = boundingBox.left;
+        int top = boundingBox.top;
+        int width = boundingBox.width();
+        int height = boundingBox.height();
+
 
 
         ImageCapture.OutputFileOptions outputFileOptions =
@@ -360,6 +372,7 @@ public class Camera {
             public void onImageSaved(ImageCapture.OutputFileResults outputFileResults){
                 //we did it!
                 Log.d("CAMERAXTHING", "IMAGE SAVED: "+ filePath);
+
             }
             public void onError(ImageCaptureException error){
                 //oh no!
@@ -372,6 +385,49 @@ public class Camera {
 
         labeledImageFiles.add(labeledImage);
         return imageFile;
+    }
+
+    public void cropImageProxy  (ImageProxy imageProxy, Rect cropRect, String fileType) {
+        try {
+            ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
+            byte[] imageData = new byte[buffer.remaining()];
+            buffer.get(imageData);
+
+// Decompress the image data
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inMutable = true;
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+
+// Crop the Bitmap
+            int x = cropRect.left;
+            int y = cropRect.top;
+            int width = cropRect.width();
+            int height = cropRect.height();
+            Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, x, y, width, height);
+
+            String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
+            //idea: what if it's Downloads not Download
+            //- Maddy
+            String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
+            FileOutputStream fos = new FileOutputStream(filePath);
+
+            // Compress the Bitmap into a PNG format
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            // Write the compressed data to the file
+            fos.flush();
+            fos.close();
+
+            LabeledImage labeledImage = new LabeledImage(filePath, fileType);
+
+            labeledImageFiles.add(labeledImage);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public ArrayList<File> getImageFiles(){
