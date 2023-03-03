@@ -45,20 +45,27 @@
             app:layout_constraintTop_toBottomOf="@id/display_layout">
 
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="600dp"
                 android:layout_height="600dp"
                 android:orientation="horizontal"
                 android:gravity = "center"
                 android:background="#04345C">
 
+                <Button
+                    android:id="@+id/activateCam"
+                    android:layout_width="550dp"
+                    android:layout_height="550dp"
+                    android:onClick="activateCamera"></Button>
+
                 <androidx.camera.view.PreviewView
                     android:id="@+id/previewView"
                     android:layout_width="550dp"
-                    android:layout_height="550dp">
+                    android:layout_height="550dp"
+                    android:elevation="7dp">
                 </androidx.camera.view.PreviewView>
 
-            </LinearLayout>
+            </RelativeLayout>
 
 
 

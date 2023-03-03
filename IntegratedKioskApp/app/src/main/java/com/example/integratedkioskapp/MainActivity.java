@@ -27,6 +27,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
 
         Numpad.createClickListeners(binding);
+
+        Button activateCam = binding.activateCam;
+
+    }
+
+    public void activateCamera(){
         Camera camTest = new Camera(binding);
     }
 }
