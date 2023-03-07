@@ -56,6 +56,8 @@ public class Numpad {
                 if (MainActivity.currentId.length()>=1) {
                     ServerCommunication.uploadStudentID(MainActivity.currentId);
                     MainActivity.currentId = "";
+                    // re-covers the camera
+                    binding.cover.setElevation(7);
                 }
             }
         });

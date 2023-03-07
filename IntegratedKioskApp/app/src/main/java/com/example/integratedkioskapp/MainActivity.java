@@ -36,18 +36,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 //stuff
+                v.setElevation(0);
             }
-
         });
 
         Numpad.createClickListeners(binding);
         Camera camTest = new Camera(binding);
-
-
-    }
-
-    public void uncoverCamera(View v){
-        v.setElevation(0);
     }
 
 
