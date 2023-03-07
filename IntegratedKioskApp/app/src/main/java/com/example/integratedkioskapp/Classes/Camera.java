@@ -30,7 +30,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 //import android.media.FaceDetector;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,6 +53,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -122,8 +125,6 @@ public class Camera {
     private long lastRequestTime = System.currentTimeMillis();
     private long scanCooldown = 250; // this is in milliseconds (ms)
     private long sendRequestCooldown = 1000; // how often we send a request to server
-
-
 
     public Camera(ActivityMainBinding binding){
         previewView = binding.previewView;
@@ -218,13 +219,16 @@ public class Camera {
 //                catch(InterruptedException e){}
                 long currTimeNow = System.currentTimeMillis();
                 if (currTimeNow - currTimeAnalysis >= scanCooldown) {
-                    Log.d("CAMERAXTHING", "BRUH");
+                    Bitmap bitmap = createBitmapFromImageProxy(imageProxy);
+                    Log.d("CAMERAXTHING", "BRUH: "+bitmap);
                     currTimeAnalysis = currTimeNow;
-                    processImageProxy(barcodeScanner, imageProxy);
-                    processFaceDetection(faceDetector, imageProxy);
+                    processImageProxy(barcodeScanner, imageProxy, bitmap);
+                    processFaceDetection(faceDetector, imageProxy, bitmap);
                     return;
                 }
                 imageProxy.close();
+                Log.d("CAMERAXTHING", "NUM-3");
+
 
 
                 // SENDING REQUESTS
@@ -251,7 +255,7 @@ public class Camera {
     }
 
     @ExperimentalGetImage
-    public void processFaceDetection (FaceDetector faceDetector, ImageProxy imageProxy) {
+    public void processFaceDetection (FaceDetector faceDetector, ImageProxy imageProxy, Bitmap bitmap) {
         if (imageProxy==null) return;
         Image image = imageProxy.getImage();
 
@@ -265,13 +269,14 @@ public class Camera {
                         Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
                         if (faces.size()>0) {
                             try {
-                                cropImageProxy(imageProxy, faces.get(0).getBoundingBox(), "Face");
+                                cropImageProxy(bitmap, faces.get(0).getBoundingBox(), "Face");
 
 //                                takePicture("Face", faces.get(0).getBoundingBox());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
+                        imageProxy.close();
                     }
                 }
         ).addOnFailureListener(
@@ -279,6 +284,8 @@ public class Camera {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d("CAMERAXTHING", "no face detected atm");
+                        imageProxy.close();
+
                     }
                 }
         ).addOnCompleteListener(
@@ -298,7 +305,7 @@ public class Camera {
 
 
     @ExperimentalGetImage
-    public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy) {
+    public void processImageProxy (BarcodeScanner scanner, ImageProxy imageProxy, Bitmap bitmap) {
         if (imageProxy==null) return;
         Image image = imageProxy.getImage();
 
@@ -312,14 +319,14 @@ public class Camera {
                      Log.d("CAMERAXTHING", "BARCODE 1: "+barcodes.size());
                      if (barcodes.size()>0) {
                          Log.d("CAMERAXTHING", "BARCODE 2");
-
                          try {
-                             cropImageProxy(imageProxy, barcodes.get(0).getBoundingBox(), "Barcode");
+                             cropImageProxy(bitmap, barcodes.get(0).getBoundingBox(), "Barcode");
 //                             takePicture("Barcode", barcodes.get(0).getBoundingBox());
                          } catch (Exception e) {
                              e.printStackTrace();
                          }
                      }
+                     imageProxy.close();
                  }
              }
         ).addOnFailureListener(
@@ -387,40 +394,43 @@ public class Camera {
         return imageFile;
     }
 
-    public void cropImageProxy  (ImageProxy imageProxy, Rect cropRect, String fileType) {
-        try {
-            ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
-            byte[] imageData = new byte[buffer.remaining()];
-            buffer.get(imageData);
-
-// Decompress the image data
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inMutable = true;
-            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+    public void cropImageProxy  (Bitmap bitmap, Rect cropRect, String fileType) {
+//        try {
+            Log.d("CAMERAXTHING", "OWEHGP(WEHGPOWHTPOITHWPOTHWPOHWOG");
+            Log.d("CAMERAXTHING", ""+bitmap);
 
 // Crop the Bitmap
             int x = cropRect.left;
             int y = cropRect.top;
+            Log.d("CAMERAXTHING", "X,Y: "+x+" "+y);
             int width = cropRect.width();
             int height = cropRect.height();
+            if (x<0 || y<0) return;
             Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, x, y, width, height);
 
+            try {
             String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
             //idea: what if it's Downloads not Download
             //- Maddy
             String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
-            FileOutputStream fos = new FileOutputStream(filePath);
+            File f = new File(filePath);
+            FileOutputStream fos = new FileOutputStream(f);
 
             // Compress the Bitmap into a PNG format
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             // Write the compressed data to the file
-            fos.flush();
-            fos.close();
+            Log.d("CAMERAXTHING", "NUM1");
 
+            fos.flush();
+            Log.d("CAMERAXTHING", "NUM2");
+            fos.close();
+            Log.d("CAMERAXTHING", "NUM3");
             LabeledImage labeledImage = new LabeledImage(filePath, fileType);
+            Log.d("CAMERAXTHING", "NUM4");
 
             labeledImageFiles.add(labeledImage);
+            Log.d("CAMERAXTHING", "Labled Images: "+labeledImageFiles.size());
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -432,6 +442,31 @@ public class Camera {
 
     public ArrayList<File> getImageFiles(){
         return imageFiles;
+    }
+
+    public Bitmap createBitmapFromImageProxy (ImageProxy imageProxy) {
+        @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer yBuffer = planes[0].getBuffer();
+        ByteBuffer uBuffer = planes[1].getBuffer();
+        ByteBuffer vBuffer = planes[2].getBuffer();
+
+        int ySize = yBuffer.remaining();
+        int uSize = uBuffer.remaining();
+        int vSize = vBuffer.remaining();
+
+        byte[] nv21 = new byte[ySize + uSize + vSize];
+        //U and V are swapped
+        yBuffer.get(nv21, 0, ySize);
+        vBuffer.get(nv21, ySize, vSize);
+        uBuffer.get(nv21, ySize + vSize, uSize);
+
+        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
+
+        byte[] imageBytes = out.toByteArray();
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
 }
