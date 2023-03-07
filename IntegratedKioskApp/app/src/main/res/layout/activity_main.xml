@@ -57,7 +57,7 @@
                     android:layout_width="560dp"
                     android:layout_height="560dp"
                     android:backgroundTint="#1E77BD"
-                    android:elevation="7dp"></Button>
+                   ></Button>
 
                 <androidx.camera.view.PreviewView
                     android:id="@+id/previewView"

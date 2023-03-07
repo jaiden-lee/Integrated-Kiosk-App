@@ -31,7 +31,9 @@ public class MainActivity extends AppCompatActivity {
         TextView displayStudentId = binding.displayStudentId;
         displayStudentId.setText(currentId);
 
+        
         Button camCover = binding.cover;
+        camCover.setElevation(7);
         camCover.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
