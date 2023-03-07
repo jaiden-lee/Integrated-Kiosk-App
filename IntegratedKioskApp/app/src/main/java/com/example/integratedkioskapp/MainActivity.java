@@ -17,22 +17,40 @@ import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    public static String currentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+       //setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         androidx.constraintlayout.widget.ConstraintLayout view = binding.getRoot();
         setContentView(view);
 
+        currentId = "";
+        TextView displayStudentId = binding.displayStudentId;
+        displayStudentId.setText(currentId);
+
+        Button camCover = binding.cover;
+        camCover.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                //stuff
+            }
+
+        });
+
         Numpad.createClickListeners(binding);
-
-        Button activateCam = binding.activateCam;
-
-    }
-
-    public void activateCamera(){
         Camera camTest = new Camera(binding);
+
+
     }
+
+    public void uncoverCamera(View v){
+        v.setElevation(0);
+    }
+
+
+
+
 }

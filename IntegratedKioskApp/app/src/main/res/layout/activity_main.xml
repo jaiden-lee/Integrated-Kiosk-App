@@ -53,16 +53,15 @@
                 android:background="#04345C">
 
                 <Button
-                    android:id="@+id/activateCam"
+                    android:id="@+id/cover"
                     android:layout_width="550dp"
                     android:layout_height="550dp"
-                    android:onClick="activateCamera"></Button>
+                    android:elevation="7dp"></Button>
 
                 <androidx.camera.view.PreviewView
                     android:id="@+id/previewView"
                     android:layout_width="550dp"
-                    android:layout_height="550dp"
-                    android:elevation="7dp">
+                    android:layout_height="550dp">
                 </androidx.camera.view.PreviewView>
 
             </RelativeLayout>

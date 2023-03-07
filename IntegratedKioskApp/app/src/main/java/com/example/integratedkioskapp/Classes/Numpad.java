@@ -14,7 +14,6 @@ import com.example.integratedkioskapp.MainActivity;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
 
 public class Numpad {
-    public static String currentId = "";
     public static int butNum;
     public static void createClickListeners (ActivityMainBinding binding) {
         Button buttons[] = {
@@ -37,8 +36,8 @@ public class Numpad {
                 int num = butNum;
                 @Override
                 public void onClick (View view) {
-                    currentId+=""+num;
-                    Log.d("NUMPAD", "onClick: "+currentId);
+                    MainActivity.currentId+=""+num;
+                    Log.d("NUMPAD", "onClick: "+MainActivity.currentId);
                 }
             });
         }
@@ -46,17 +45,17 @@ public class Numpad {
         binding.delete.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick (View view) {
-               if (currentId.length()>=1) {
-                   currentId = currentId.substring(0, currentId.length()-1);
+               if (MainActivity.currentId.length()>=1) {
+                   MainActivity.currentId = MainActivity.currentId.substring(0, MainActivity.currentId.length()-1);
                }
            }
         });
         binding.enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-                if (currentId.length()>=1) {
-                    ServerCommunication.uploadStudentID(currentId);
-                    currentId = "";
+                if (MainActivity.currentId.length()>=1) {
+                    ServerCommunication.uploadStudentID(MainActivity.currentId);
+                    MainActivity.currentId = "";
                 }
             }
         });
