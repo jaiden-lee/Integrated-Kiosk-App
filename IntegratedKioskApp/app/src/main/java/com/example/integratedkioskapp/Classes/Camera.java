@@ -269,9 +269,9 @@ public class Camera {
                         Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
                         if (faces.size()>0) {
                             try {
-                                cropImageProxy(bitmap, faces.get(0).getBoundingBox(), "Face");
+//                                cropImageProxy(bitmap, faces.get(0).getBoundingBox(), "Face");
 
-//                                takePicture("Face", faces.get(0).getBoundingBox());
+                                takePicture("Face");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -321,7 +321,7 @@ public class Camera {
                          Log.d("CAMERAXTHING", "BARCODE 2");
                          try {
                              cropImageProxy(bitmap, barcodes.get(0).getBoundingBox(), "Barcode");
-//                             takePicture("Barcode", barcodes.get(0).getBoundingBox());
+                             takePicture("Barcode");
                          } catch (Exception e) {
                              e.printStackTrace();
                          }
@@ -355,7 +355,7 @@ public class Camera {
         }
     }
 
-    public File takePicture(String fileType, Rect boundingBox) throws FileNotFoundException {
+    public File takePicture(String fileType) throws FileNotFoundException {
         Log.d("CAMERAXTHING", "PICTURE TAKEN");
         String fileName = Calendar.getInstance().getTime().toString().replaceAll(":", "-");
         //idea: what if it's Downloads not Download
@@ -363,13 +363,6 @@ public class Camera {
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName + ".jpeg";
         Log.d("CAMERAXTHING", filePath);
         imageFile = new File (filePath);
-
-        int left = boundingBox.left;
-        int top = boundingBox.top;
-        int width = boundingBox.width();
-        int height = boundingBox.height();
-
-
 
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(imageFile).build();

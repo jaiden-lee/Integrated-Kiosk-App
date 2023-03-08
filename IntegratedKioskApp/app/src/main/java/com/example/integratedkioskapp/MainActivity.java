@@ -33,12 +33,16 @@ public class MainActivity extends AppCompatActivity {
 
         
         Button camCover = binding.cover;
-        camCover.setElevation(7);
+
+        camCover.setElevation(10);
+        Log.d("COVER", "cover's elevation: " + camCover.getElevation());
         camCover.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 //stuff
-                v.setElevation(0);
+                camCover.setElevation(1);
+                Log.d("COVER", "YAYYYYYY");
+                Log.d("COVER", "cover's elevation: " + camCover.getElevation());
             }
         });
 
