@@ -24,7 +24,7 @@
             android:background="#04345C"
             android:contextClickable="true"
             android:fontFamily="sans-serif-smallcaps"
-            android:text="CENTER FACE OR ENTER STUDENT ID"
+            android:text="CLICK FOR CAMERA OR ENTER ID"
             android:textAlignment="center"
             android:textColor="#BAD3E4"
             android:textSize="66sp"></TextView>
@@ -52,18 +52,20 @@
                 android:gravity = "center"
                 android:background="#04345C">
 
+                <androidx.camera.view.PreviewView
+                    android:id="@+id/previewView"
+                    android:layout_width="550dp"
+                    android:layout_height="550dp"
+                    android:elevation="0dp">
+                </androidx.camera.view.PreviewView>
+
                 <Button
                     android:id="@+id/cover"
                     android:layout_width="560dp"
                     android:layout_height="560dp"
                     android:backgroundTint="#1E77BD"
-                   ></Button>
-
-                <androidx.camera.view.PreviewView
-                    android:id="@+id/previewView"
-                    android:layout_width="550dp"
-                    android:layout_height="550dp">
-                </androidx.camera.view.PreviewView>
+                    android:setElevation="0dp"
+                    ></Button>
 
             </RelativeLayout>
 

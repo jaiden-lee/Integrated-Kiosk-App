@@ -71,6 +71,7 @@ import java.util.concurrent.Executors;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -92,7 +93,6 @@ import androidx.lifecycle.LifecycleOwner;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-
 
 public class Camera {
 //for the camera to start, you must implement 2/3 of the camerax uses cases: Preview and ImageCapture
@@ -119,6 +119,7 @@ public class Camera {
     private Calendar flushcurdate = Calendar.getInstance();
     private Calendar flushcalendar = Calendar.getInstance();
 
+    private boolean userEnabled;
 
     // TIME DELAYS
     private long currTimeAnalysis = System.currentTimeMillis();
@@ -127,10 +128,20 @@ public class Camera {
     private long sendRequestCooldown = 1000; // how often we send a request to server
 
     public Camera(ActivityMainBinding binding){
+        userEnabled = false;
         previewView = binding.previewView;
         displayText = binding.displayStudentId;
-
         context = previewView.getContext();
+
+        Button camCover = binding.cover;
+        camCover.setElevation(7);
+        camCover.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                previewView.setElevation(10);
+                userEnabled = true;
+            }
+        });
 
         imageFiles = new ArrayList<File>();
 
@@ -218,7 +229,8 @@ public class Camera {
 //                }
 //                catch(InterruptedException e){}
                 long currTimeNow = System.currentTimeMillis();
-                if (currTimeNow - currTimeAnalysis >= scanCooldown) {
+                //won't take a picture unless the button was clicked
+                if ((currTimeNow - currTimeAnalysis >= scanCooldown) & userEnabled==true) {
                     Bitmap bitmap = createBitmapFromImageProxy(imageProxy);
                     Log.d("CAMERAXTHING", "BRUH: "+bitmap);
                     currTimeAnalysis = currTimeNow;
