@@ -133,13 +133,14 @@ public class Camera {
         displayText = binding.displayStudentId;
         context = previewView.getContext();
 
-        Button camCover = binding.cover;
-        camCover.setElevation(7);
-        camCover.setOnClickListener(new View.OnClickListener(){
+       // camCover.setElevation(7);
+
+        MainActivity.camCover.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                previewView.setElevation(10);
+//                previewView.setElevation(10);
                 userEnabled = true;
+                MainActivity.camCover.setVisibility(View.INVISIBLE);
             }
         });
 

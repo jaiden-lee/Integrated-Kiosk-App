@@ -16,6 +16,7 @@ import com.example.integratedkioskapp.databinding.ActivityMainBinding;
 public class Numpad {
     public static int butNum;
     public static void createClickListeners (ActivityMainBinding binding) {
+
         Button buttons[] = {
                 binding.zero,
                 binding.one,
@@ -36,8 +37,11 @@ public class Numpad {
                 int num = butNum;
                 @Override
                 public void onClick (View view) {
-                    MainActivity.currentId+=""+num;
-                    Log.d("NUMPAD", "onClick: "+MainActivity.currentId);
+                    if (MainActivity.currentId.length() < 5){
+                        MainActivity.currentId+=""+num;
+                        MainActivity.displayStudentId.setText(MainActivity.currentId);
+                        Log.d("NUMPAD", "onClick: "+MainActivity.currentId);
+                    }
                 }
             });
         }
@@ -47,19 +51,25 @@ public class Numpad {
            public void onClick (View view) {
                if (MainActivity.currentId.length()>=1) {
                    MainActivity.currentId = MainActivity.currentId.substring(0, MainActivity.currentId.length()-1);
+                   MainActivity.displayStudentId.setText(MainActivity.currentId);
+
                }
            }
         });
         binding.enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
+
                 if (MainActivity.currentId.length()>=1) {
                     ServerCommunication.uploadStudentID(MainActivity.currentId);
                     MainActivity.currentId = "";
+                    MainActivity.displayStudentId.setText("CLICK FOR FACE OR ENTER ID");
                     // re-covers the camera
-                    binding.previewView.setElevation(0);
                 }
+                MainActivity.camCover.setVisibility(View.VISIBLE);
+
             }
         });
+        Log.d("NUMPAD", "SLAY");
     }
 }

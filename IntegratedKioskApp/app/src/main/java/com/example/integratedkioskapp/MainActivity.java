@@ -18,6 +18,8 @@ import java.io.FileNotFoundException;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     public static String currentId;
+    public static TextView displayStudentId;
+    public static Button camCover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,27 +29,26 @@ public class MainActivity extends AppCompatActivity {
         androidx.constraintlayout.widget.ConstraintLayout view = binding.getRoot();
         setContentView(view);
 
+        displayStudentId = binding.displayStudentId;
         currentId = "";
-        TextView displayStudentId = binding.displayStudentId;
-        displayStudentId.setText(currentId);
 
-        
-        Button camCover = binding.cover;
+        camCover = binding.cover;
 
-        camCover.setElevation(10);
-        Log.d("COVER", "cover's elevation: " + camCover.getElevation());
-        camCover.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                //stuff
-                camCover.setElevation(1);
-                Log.d("COVER", "YAYYYYYY");
-                Log.d("COVER", "cover's elevation: " + camCover.getElevation());
-            }
-        });
+//        camCover.setElevation(10);
+//        Log.d("COVER", "cover's elevation: " + camCover.getElevation());
+//        camCover.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v){
+//                //stuff
+//                camCover.setElevation(1);
+//                Log.d("COVER", "YAYYYYYY");
+//                Log.d("COVER", "cover's elevation: " + camCover.getElevation());
+//            }
+//        });
 
         Numpad.createClickListeners(binding);
         Camera camTest = new Camera(binding);
+        Log.d("CAMERAXTHING", "LSDJGPOWEHGPOWEGHWEUOPGWE");
     }
 
 

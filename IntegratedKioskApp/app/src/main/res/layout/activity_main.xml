@@ -15,7 +15,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="30dp"
             android:background="#BAD3E4"></View>
         <!--turn preview off until student touches camera-->
         <TextView
@@ -50,22 +50,22 @@
             android:layout_width="600dp"
             android:layout_height="600dp"
             android:orientation="horizontal"
-            android:gravity = "center"
             android:background="#04345C">
             <androidx.camera.view.PreviewView
                 android:id="@+id/previewView"
                 android:layout_width="550dp"
                 android:layout_height="550dp"
-                android:elevation="0dp">
+                android:layout_centerVertical = "true"
+                android:layout_centerHorizontal = "true"
+                >
             </androidx.camera.view.PreviewView>
 
             <Button
                 android:id="@+id/cover"
-                android:layout_width="600dp"
-                android:layout_height="600dp"
-                android:backgroundTint="#1E77BD"
-                android:setElevation="0dp"
-                ></Button>
+                android:layout_width="560dp"
+                android:layout_height="570dp"
+                android:layout_centerInParent="true"
+                android:backgroundTint="#1E77BD"></Button>
 
         </RelativeLayout>
 
@@ -235,7 +235,7 @@
                     android:layout_height="match_parent"
                     android:backgroundTint="#1E77BD"
                     android:text="DEL"
-                    android:textSize="50sp"></Button>
+                    android:textSize="40sp"></Button>
 
                 <View
                     android:layout_width="12dp"
