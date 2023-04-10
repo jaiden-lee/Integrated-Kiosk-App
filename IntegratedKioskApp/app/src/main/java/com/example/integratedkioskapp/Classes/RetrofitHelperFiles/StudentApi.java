@@ -1,5 +1,9 @@
 package com.example.integratedkioskapp.Classes.RetrofitHelperFiles;
 
+import com.google.gson.JsonElement;
+
+import org.json.JSONObject;
+
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -11,5 +15,5 @@ import retrofit2.http.Query;
 
 public interface StudentApi {
     @GET("kiosk/login")
-    public Call<StudentID> sendStudentID (@Query("id") String studentId, @Query("kiosk") String kioskNum);
+    public Call<JsonElement> sendStudentID (@Query("id") String studentId, @Query("kiosk") String kioskNum);
 }

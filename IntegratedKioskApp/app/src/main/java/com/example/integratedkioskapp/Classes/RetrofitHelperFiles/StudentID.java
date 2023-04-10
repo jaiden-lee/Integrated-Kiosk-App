@@ -1,9 +1,9 @@
 package com.example.integratedkioskapp.Classes.RetrofitHelperFiles;
 
 public class StudentID {
-    String name;
-    boolean accept;
-    String seniorPriv;
-    int id;
-    int in;
+    public String name;
+    public boolean accept;
+    public int seniorPriv;
+    public int id;
+    public int in;
 }

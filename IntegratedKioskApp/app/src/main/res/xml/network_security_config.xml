@@ -5,5 +5,7 @@
         <domain includeSubdomains="true">10.0.2.2:8000</domain>
         <domain includeSubdomains="true">localhost:8000</domain>
         <domain includeSubdomains="true">192.168.86.77:8000</domain>
+        <domain includeSubdomains="true">192.168.86.30:8000</domain>
+        <domain includeSubdomains="true">10.56.52.254:8000</domain>
     </domain-config>
 </network-security-config>

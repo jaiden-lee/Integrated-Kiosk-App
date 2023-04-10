@@ -40,7 +40,6 @@ public class Numpad {
                     if (MainActivity.currentId.length() < 5){
                         MainActivity.currentId+=""+num;
                         MainActivity.displayStudentId.setText(MainActivity.currentId);
-                        Log.d("NUMPAD", "onClick: "+MainActivity.currentId);
                     }
                 }
             });
@@ -59,17 +58,19 @@ public class Numpad {
         binding.enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-
-                if (MainActivity.currentId.length()>=1) {
+                MainActivity.cameraEnabled = false;
+                if (MainActivity.currentId.length()>=1 && MainActivity.currentId.length()<=5 && MainActivity.checkStringIsNumber(MainActivity.currentId)) {
+//                    ServerCommunication.postStudentID(MainActivity.currentId);
                     ServerCommunication.uploadStudentID(MainActivity.currentId);
                     MainActivity.currentId = "";
-                    MainActivity.displayStudentId.setText("CLICK FOR FACE OR ENTER ID");
+//                    MainActivity.displayStudentId.setText("CLICK FOR FACE OR ENTER ID");
                     // re-covers the camera
                 }
                 MainActivity.camCover.setVisibility(View.VISIBLE);
+                MainActivity.disableCameraButton.setVisibility(View.INVISIBLE);
+
 
             }
         });
-        Log.d("NUMPAD", "SLAY");
     }
 }

@@ -20,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     public static String currentId;
     public static TextView displayStudentId;
     public static Button camCover;
+    public static Button disableCameraButton;
+    public static boolean cameraEnabled = false;
+    public static TextView txtMarquee;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +31,15 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         androidx.constraintlayout.widget.ConstraintLayout view = binding.getRoot();
         setContentView(view);
+//        txtMarquee = (TextView) binding.marqueeText;
+//        txtMarquee.setSelected(true);
+
 
         displayStudentId = binding.displayStudentId;
         currentId = "";
 
         camCover = binding.cover;
+        disableCameraButton = binding.disableCameraButton;
 
 //        camCover.setElevation(10);
 //        Log.d("COVER", "cover's elevation: " + camCover.getElevation());
@@ -49,9 +56,18 @@ public class MainActivity extends AppCompatActivity {
         Numpad.createClickListeners(binding);
         Camera camTest = new Camera(binding);
         Log.d("CAMERAXTHING", "LSDJGPOWEHGPOWEGHWEUOPGWE");
+
     }
 
 
+    public static boolean checkStringIsNumber (String num) {
+        try {
+            Integer.parseInt(num);
+            return true;
+        } catch (Exception e) {
+        }
+        return false;
 
+    }
 
 }

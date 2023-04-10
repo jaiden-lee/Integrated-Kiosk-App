@@ -12,10 +12,27 @@
         android:layout_height="150dp"
         android:orientation="vertical"
         tools:ignore="MissingConstraints">
-
+<!--        <TextView-->
+<!--            android:id="@+id/marqueeText"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="0sp"-->
+<!--            android:ellipsize="marquee"-->
+<!--            android:marqueeRepeatLimit="marquee_forever"-->
+<!--            android:padding="0dp"-->
+<!--            android:scrollHorizontally="true"-->
+<!--            android:singleLine="true"-->
+<!--            android:focusable="true"-->
+<!--            android:focusableInTouchMode="true"-->
+<!--            android:text="______________________________________________________________________'It's nerf or nothing'-Abraham Lincoln___________________________________Scrolling Text _______________________'We're deleting this quote bar, it's so stupid'- Jaiden Lee"-->
+<!--            android:textSize="20sp"-->
+<!--            android:textColor = "#FF0000"-->
+<!--            android:textStyle="bold"-->
+<!--            android:visibility = "invisible"-->
+<!--            />-->
         <View
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="10dp"
             android:background="#BAD3E4"></View>
         <!--turn preview off until student touches camera-->
         <TextView
@@ -51,6 +68,7 @@
             android:layout_height="600dp"
             android:orientation="horizontal"
             android:background="#04345C">
+
             <androidx.camera.view.PreviewView
                 android:id="@+id/previewView"
                 android:layout_width="550dp"
@@ -61,12 +79,24 @@
             </androidx.camera.view.PreviewView>
 
             <Button
+                android:id="@+id/disableCameraButton"
+                android:layout_width="350dp"
+                android:layout_height="100dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="100dp"
+                android:text="Disable camera"
+                android:textSize="30sp"
+                android:visibility="invisible"
+                android:backgroundTint="#1E77BD"></Button>
+
+            <Button
                 android:id="@+id/cover"
                 android:layout_width="560dp"
                 android:layout_height="570dp"
                 android:layout_centerInParent="true"
-                android:backgroundTint="#1E77BD"></Button>
-
+                android:backgroundTint="#1E77BD"
+                android:visibility="visible"></Button>
         </RelativeLayout>
 
 
@@ -260,10 +290,12 @@
                     android:backgroundTint="#1E77BD"
                     android:text="OK"
                     android:textSize="50sp"></Button>
+
             </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

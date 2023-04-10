@@ -119,16 +119,18 @@ public class Camera {
     private Calendar flushcurdate = Calendar.getInstance();
     private Calendar flushcalendar = Calendar.getInstance();
 
-    private boolean userEnabled;
+//    public boolean userEnabled;
 
     // TIME DELAYS
     private long currTimeAnalysis = System.currentTimeMillis();
     private long lastRequestTime = System.currentTimeMillis();
+    private long lastDeleteTime = System.currentTimeMillis();
     private long scanCooldown = 250; // this is in milliseconds (ms)
     private long sendRequestCooldown = 1000; // how often we send a request to server
+    private long deleteCooldown = 10000;
 
     public Camera(ActivityMainBinding binding){
-        userEnabled = false;
+        MainActivity.cameraEnabled = false;
         previewView = binding.previewView;
         displayText = binding.displayStudentId;
         context = previewView.getContext();
@@ -139,8 +141,18 @@ public class Camera {
             @Override
             public void onClick(View v){
 //                previewView.setElevation(10);
-                userEnabled = true;
+                MainActivity.cameraEnabled = true;
                 MainActivity.camCover.setVisibility(View.INVISIBLE);
+                MainActivity.disableCameraButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        MainActivity.disableCameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                MainActivity.cameraEnabled = false;
+                MainActivity.camCover.setVisibility(View.VISIBLE);
+                MainActivity.disableCameraButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -156,6 +168,7 @@ public class Camera {
         else{
             Toast.makeText(context, "Camera permissions not granted by user.", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private boolean cameraPermissionGranted(){
@@ -231,16 +244,24 @@ public class Camera {
 //                catch(InterruptedException e){}
                 long currTimeNow = System.currentTimeMillis();
                 //won't take a picture unless the button was clicked
-                if ((currTimeNow - currTimeAnalysis >= scanCooldown) & userEnabled==true) {
+                if ((currTimeNow - currTimeAnalysis >= scanCooldown) & MainActivity.cameraEnabled==true) {
                     Bitmap bitmap = createBitmapFromImageProxy(imageProxy);
-                    Log.d("CAMERAXTHING", "BRUH: "+bitmap);
+//                    Log.d("CAMERAXTHING", "BRUH: "+bitmap);
                     currTimeAnalysis = currTimeNow;
-                    processImageProxy(barcodeScanner, imageProxy, bitmap);
-                    processFaceDetection(faceDetector, imageProxy, bitmap);
+                    processImageProxy(barcodeScanner, imageProxy, null);
+                    processFaceDetection(faceDetector, imageProxy, null);
                     return;
                 }
                 imageProxy.close();
-                Log.d("CAMERAXTHING", "NUM-3");
+                if (MainActivity.cameraEnabled==false) {
+                    try {
+                        labeledImageFiles.clear();
+//                        clearImagesFromStorage();
+                    } catch (Exception e) {
+
+                    }
+
+                }
 
 
 
@@ -252,13 +273,29 @@ public class Camera {
                     if (labeledImageFiles.size()>0) {
                         ServerCommunication.uploadImageFilesToServer(labeledImageFiles);
                     }
-                    labeledImageFiles.clear();
+                    try {
+                        labeledImageFiles.clear();
+//                        clearImagesFromStorage();
+                    } catch (Exception e) {
+
+                    }
 
 //                    try {
-//                        deleteImagesFromStorage();
+////                        deleteImagesFromStorage();
 //                    } catch (FileNotFoundException e) {
 //                        e.printStackTrace();
 //                    }
+                }
+
+                currTimeNow = System.currentTimeMillis();
+                if (currTimeNow - lastDeleteTime >= deleteCooldown) {
+                    lastDeleteTime = currTimeNow;
+                    try {
+                        labeledImageFiles.clear();
+                        clearImagesFromStorage();
+                    } catch (Exception e) {
+
+                    }
                 }
             }
         });
@@ -282,8 +319,6 @@ public class Camera {
                         Log.d("CAMERAXTHING", "FACE DETECTED: "+faces.size());
                         if (faces.size()>0) {
                             try {
-//                                cropImageProxy(bitmap, faces.get(0).getBoundingBox(), "Face");
-
                                 takePicture("Face");
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -333,7 +368,7 @@ public class Camera {
                      if (barcodes.size()>0) {
                          Log.d("CAMERAXTHING", "BARCODE 2");
                          try {
-                             cropImageProxy(bitmap, barcodes.get(0).getBoundingBox(), "Barcode");
+//                             cropImageProxy(bitmap, barcodes.get(0).getBoundingBox(), "Barcode");
                              takePicture("Barcode");
                          } catch (Exception e) {
                              e.printStackTrace();
@@ -347,6 +382,7 @@ public class Camera {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d("CAMERAXTHING", "nlg u kinda suck");
+                imageProxy.close();
             }
         }
         ).addOnCompleteListener(
@@ -475,5 +511,31 @@ public class Camera {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
+    public void clearImagesFromStorage () {
+        File directory = new File(Environment.getExternalStorageDirectory()+"/Download/");
+        /*
+        for (File fullFileDelete: Objects.requireNonNull(directory.listFiles())) {
+            if (!fullFileDelete.isDirectory()) {
+                Log.d("CAMERAXTHING", fullFileDelete.getName());
+                fullFileDelete.delete();
+            }
+        }*/
+//        for(File file: directory.listFiles())
+//            if (!file.isDirectory())
+//                try {
+//                    file.delete();
+//                } catch(Exception e){
+//                    Log.d("CAMERAXTHING", "No Bueno");
+//                }
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    file.delete();
+                }
+            }
+        }
+    }
 }
 
