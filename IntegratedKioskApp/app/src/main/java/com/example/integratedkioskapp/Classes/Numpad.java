@@ -51,7 +51,9 @@ public class Numpad {
                if (MainActivity.currentId.length()>=1) {
                    MainActivity.currentId = MainActivity.currentId.substring(0, MainActivity.currentId.length()-1);
                    MainActivity.displayStudentId.setText(MainActivity.currentId);
-
+               }
+               if (MainActivity.currentId.length()==0) {
+                   MainActivity.displayStudentId.setText("CLICK FOR FACE OR ENTER ID");
                }
            }
         });

@@ -102,7 +102,6 @@ public class Camera {
     private ImageCapture imageCapture;
     private ArrayList<File> imageFiles;
 
-    private ArrayList<LabeledImage> labeledImageFiles = new ArrayList<>();
 
     private File imageFile;
     private ImageAnalysis imageAnalysis;
@@ -255,7 +254,7 @@ public class Camera {
                 imageProxy.close();
                 if (MainActivity.cameraEnabled==false) {
                     try {
-                        labeledImageFiles.clear();
+                        MainActivity.labeledImageFiles.clear();
 //                        clearImagesFromStorage();
                     } catch (Exception e) {
 
@@ -270,11 +269,11 @@ public class Camera {
                 if (currTimeNow - lastRequestTime >= sendRequestCooldown) {
                     Log.d("CAMERAXTHING", "SEND");
                     lastRequestTime = currTimeNow;
-                    if (labeledImageFiles.size()>0) {
-                        ServerCommunication.uploadImageFilesToServer(labeledImageFiles);
+                    if (MainActivity.labeledImageFiles.size()>0) {
+                        ServerCommunication.uploadImageFilesToServer(MainActivity.labeledImageFiles);
                     }
                     try {
-                        labeledImageFiles.clear();
+//                        labeledImageFiles.clear();
 //                        clearImagesFromStorage();
                     } catch (Exception e) {
 
@@ -291,7 +290,7 @@ public class Camera {
                 if (currTimeNow - lastDeleteTime >= deleteCooldown) {
                     lastDeleteTime = currTimeNow;
                     try {
-                        labeledImageFiles.clear();
+                        MainActivity.labeledImageFiles.clear();
                         clearImagesFromStorage();
                     } catch (Exception e) {
 
@@ -432,7 +431,7 @@ public class Camera {
 
         LabeledImage labeledImage = new LabeledImage(filePath, fileType);
 
-        labeledImageFiles.add(labeledImage);
+        MainActivity.labeledImageFiles.add(labeledImage);
         return imageFile;
     }
 
@@ -471,8 +470,8 @@ public class Camera {
             LabeledImage labeledImage = new LabeledImage(filePath, fileType);
             Log.d("CAMERAXTHING", "NUM4");
 
-            labeledImageFiles.add(labeledImage);
-            Log.d("CAMERAXTHING", "Labled Images: "+labeledImageFiles.size());
+            MainActivity.labeledImageFiles.add(labeledImage);
+            Log.d("CAMERAXTHING", "Labled Images: "+ MainActivity.labeledImageFiles.size());
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

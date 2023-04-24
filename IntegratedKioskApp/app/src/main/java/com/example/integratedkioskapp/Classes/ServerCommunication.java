@@ -72,7 +72,9 @@ public class ServerCommunication {
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
+                MainActivity.labeledImageFiles.clear();
                 String studentId = response.body();
+                Log.d("VEER", "DETECTED "+studentId);
                 if (MainActivity.checkStringIsNumber(studentId)) {
                     Log.d("CAMERAXTHING", studentId);
                     MainActivity.currentId = studentId;
@@ -87,6 +89,7 @@ public class ServerCommunication {
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
+                MainActivity.labeledImageFiles.clear();
                 Log.d("CAMERAXTHING", "BRUH: "+t.toString());
             }
         });

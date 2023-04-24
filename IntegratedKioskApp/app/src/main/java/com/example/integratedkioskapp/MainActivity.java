@@ -9,11 +9,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.example.integratedkioskapp.Classes.LabeledImage;
 import com.example.integratedkioskapp.Classes.Numpad;
 import com.example.integratedkioskapp.Classes.Camera;
 import com.example.integratedkioskapp.databinding.ActivityMainBinding;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     public static Button disableCameraButton;
     public static boolean cameraEnabled = false;
     public static TextView txtMarquee;
+    public static ArrayList<LabeledImage> labeledImageFiles = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
