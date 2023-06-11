@@ -49,7 +49,7 @@
             android:textAlignment="center"
             android:textColor="#BAD3E4"
             android:autoSizeTextType="uniform"
-            android:autoSizeMaxTextSize="80sp"></TextView>
+            android:autoSizeMaxTextSize="65sp"></TextView>
 
     </LinearLayout>
 
@@ -102,6 +102,7 @@
                 android:layout_centerInParent="true"
                 android:backgroundTint="#1E77BD"
                 android:visibility="visible"></Button>
+
         </RelativeLayout>
 
 
@@ -135,7 +136,6 @@
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="10dp"
                 android:orientation="horizontal"
                 >
 
@@ -146,6 +146,7 @@
                     android:backgroundTint="#1E77BD"
                     android:layout_weight="1"
                     android:text="1"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -156,6 +157,7 @@
                     android:layout_height="match_parent"
                     android:backgroundTint="#1E77BD"
                     android:text="2"
+                    android:layout_marginHorizontal="5dp"
                     android:layout_weight="1"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
@@ -167,6 +169,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="3"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -178,7 +181,6 @@
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="10dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -188,6 +190,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="4"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -198,6 +201,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="5"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -208,6 +212,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="6"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -219,7 +224,6 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:layout_marginHorizontal="10dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -229,6 +233,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="7"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -239,6 +244,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="8"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -249,6 +255,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="9"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -259,7 +266,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="10dp"
                 android:gravity="center">
 
                 <Button
@@ -269,6 +275,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="DEL"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -279,6 +286,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="0"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
@@ -289,6 +297,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#1E77BD"
                     android:text="OK"
+                    android:layout_marginHorizontal="5dp"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMaxTextSize="80sp"></Button>
 
